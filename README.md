@@ -1,6 +1,6 @@
 # D27B — Publication repository hardening (v4.2.1)
 
-Status: **PASS_D27B_LOCAL_REPOSITORY_REPRODUCTION / D27C_GITHUB_CI_PENDING**
+Status: **PASS_D27C_EXTERNAL_GITHUB_HOSTED_REPRODUCTION**
 
 This repository is the public-facing reproducibility core extracted from the larger
 higher-dimension verification project.
@@ -100,3 +100,8 @@ bash publish_to_github.sh
 ```
 
 The first push to `main` triggers the GitHub-hosted Ubuntu reproduction workflow.
+
+
+## D27C closure
+
+GitHub-hosted Ubuntu reproduction completed successfully. See `D27C_EXTERNAL_CI_CLOSURE.md`.
