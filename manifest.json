@@ -1,0 +1,39 @@
+{
+  "bundle": "D27C_GITHUB_EXTERNAL_CI_REPOSITORY",
+  "version": "4.3.0",
+  "status": "D27C_GITHUB_CI_PENDING",
+  "source_d27a_result_sha256": "7b49795a2cac86db1d86fafe0db722a331a4fbdf8718e0f77b29cf4c870b478c",
+  "scientific_claim_upgrade": false,
+  "public_repo_created": false,
+  "external_ci_run": false,
+  "bugfix_v4_2_1": {
+    "reproduce_all_root_path": "fixed",
+    "scientific_gates_changed": false,
+    "expected_results_changed": false
+  },
+  "bugfix_v4_2_2": {
+    "caltechauthors_403_dependency_removed": true,
+    "bundled_official_daya_bay_no_surface": true,
+    "bundled_surface_sha256": "52986e39f7844f157d064ba8c88ca2a692b39e6e915a994c039fb15a9538fa84",
+    "scientific_gates_changed": false,
+    "expected_results_changed": false
+  },
+  "d27b_local_reference_run": {
+    "archive": "RUN_20260927T203511.zip",
+    "sha256": "b53453545c8f3293f6ee4656f5f882ad6da87a0241a88a8dd9df27c3412b2952",
+    "internal_sha_pass_count": 93,
+    "overall_pass": true
+  },
+  "bugfix_v4_2_3": {
+    "automatic_result_zip": true,
+    "automatic_result_sha256_sidecar": true,
+    "package_on_early_failure_best_effort": true,
+    "scientific_gates_changed": false,
+    "expected_results_changed": false
+  },
+  "current_input_acquisition": {
+    "dayabay_delta_chi2": "runtime official CaltechAUTHORS/arXiv fallback with frozen SHA-256",
+    "newtrinos": "runtime pinned commit download with frozen SHA-256",
+    "bundled_third_party_data": false
+  }
+}

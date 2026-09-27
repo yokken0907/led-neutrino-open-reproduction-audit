@@ -1,0 +1,21 @@
+{
+  "python_executable": "/home/kei/venvs/d27_repro_v411/led/bin/python",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "host_python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "python_version": {
+    "rc": 0,
+    "stdout": "Python 3.12.3\n",
+    "stderr": ""
+  },
+  "pip_freeze": {
+    "rc": 0,
+    "stdout": "numpy==2.5.3\nscipy==1.18.1\n",
+    "stderr": ""
+  },
+  "critical_versions": {
+    "rc": 0,
+    "stdout": "{\"numpy\": \"2.5.3\", \"scipy\": \"1.18.1\"}\n",
+    "stderr": ""
+  }
+}

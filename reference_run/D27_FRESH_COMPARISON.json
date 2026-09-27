@@ -1,0 +1,26 @@
+{
+  "phase": "D27_FRESH_RESULT_COMPARISON",
+  "checks": {
+    "D25G_R2": {
+      "verdict_equal": true,
+      "N192_crossings_equal": true,
+      "N384_crossings_equal": true,
+      "N192_sequence_equal": true,
+      "N384_sequence_equal": true,
+      "pass": true
+    },
+    "D26C1": {
+      "verdict_equal": true,
+      "gates_equal": true,
+      "metric_deltas": {
+        "profiled_public_best_abs_chi2_difference": 0.0,
+        "spearman_rho": 0.0,
+        "median_abs_delta_difference": 0.0,
+        "p90_abs_delta_difference": 0.0
+      },
+      "metrics_within_frozen_D27_tolerance": true,
+      "pass": true
+    }
+  },
+  "overall_pass": true
+}

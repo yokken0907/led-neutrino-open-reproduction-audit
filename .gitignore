@@ -1,0 +1,7 @@
+.repro_venvs/
+results/
+inputs/d25g/authority_sources/
+inputs/FETCH_LEDGER.json
+inputs/d26c1/DayaBay_DeltaChiSq_NO_3158days.txt
+__pycache__/
+*.pyc

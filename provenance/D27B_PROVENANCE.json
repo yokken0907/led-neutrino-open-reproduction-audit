@@ -1,0 +1,26 @@
+{
+  "d27a_fresh_result_zip": "FRESH_20260927T164208.zip",
+  "d27a_fresh_sha256": "7b49795a2cac86db1d86fafe0db722a331a4fbdf8718e0f77b29cf4c870b478c",
+  "d27a_status": "FULL_CLEAN_RERUN_PASS",
+  "d27a_overall_comparison_pass": true,
+  "clean_led_critical_versions": {
+    "numpy": "2.5.3",
+    "scipy": "1.18.1"
+  },
+  "clean_public_critical_versions": {
+    "numpy": "2.3.5",
+    "scipy": "1.18.1",
+    "dayabay-model": "1.8.0",
+    "dayabay-data-official": "1.0.1",
+    "dgm-reactor-neutrino": "0.3.0",
+    "dag-modelling": "0.15.0",
+    "dgm-fit": "0.4.0",
+    "iminuit": "2.33.0"
+  },
+  "claim_scope": {
+    "new_LED_signal": false,
+    "exact_JHEP_figure5_6_reproduction": false,
+    "exact_Elacmaz_reproduction": false,
+    "open_public_reconstruction_reproducible": true
+  }
+}

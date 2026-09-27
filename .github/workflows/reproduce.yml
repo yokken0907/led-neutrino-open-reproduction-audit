@@ -1,0 +1,23 @@
+name: Reproduce D27B
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+      - name: Run full reproduction
+        run: bash reproduce_all.sh
+      - name: Upload reproduction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: d27b-reproduction-results
+          path: results/

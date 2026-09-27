@@ -1,0 +1,21 @@
+{
+  "python_executable": "/home/kei/venvs/d27_repro_v411/public3nu/bin/python",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "host_python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "python_version": {
+    "rc": 0,
+    "stdout": "Python 3.12.3\n",
+    "stderr": ""
+  },
+  "pip_freeze": {
+    "rc": 0,
+    "stdout": "awkward==2.14.0\nawkward_cpp==57\ncolorama==0.4.6\ncontextlib2==21.6.0\ncontourpy==1.4.0\ncramjam==2.12.1\ncycler==0.12.1\ndag-modelling==0.15.0\ndayabay-data-official==1.0.1\ndayabay-model==1.8.0\ndgm-fit==0.4.0\ndgm-reactor-neutrino==0.3.0\nfonttools==4.66.0\nfsspec==2026.9.0\nh5py==3.16.0\niminuit==2.33.0\nkiwisolver==1.5.1\nLaTeXDatax==1.3\nllvmlite==0.49.0\nmatplotlib==3.11.2\nmore-itertools==11.1.0\nnested-mapping==0.11\nnumba==0.67.0\nnumpy==2.3.5\nordered-set==4.1.0\npackaging==26.3\npandas==3.0.6\npillow==12.3.0\nplotille==6.0.5\npyparsing==3.3.3\npython-dateutil==2.9.0.post0\nPyYAML==6.0.3\nschema==0.7.8\nscipy==1.18.1\nsemver==3.1.0\nsix==1.17.0\ntabulate==0.10.0\nuproot==5.7.6\nxxhash==4.0.1\n",
+    "stderr": ""
+  },
+  "critical_versions": {
+    "rc": 0,
+    "stdout": "{\"numpy\": \"2.3.5\", \"scipy\": \"1.18.1\", \"dayabay-model\": \"1.8.0\", \"dayabay-data-official\": \"1.0.1\", \"dgm-reactor-neutrino\": \"0.3.0\", \"dag-modelling\": \"0.15.0\", \"dgm-fit\": \"0.4.0\", \"iminuit\": \"2.33.0\"}\n",
+    "stderr": ""
+  }
+}
