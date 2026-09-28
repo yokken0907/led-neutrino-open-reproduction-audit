@@ -39,6 +39,12 @@ GitHub Actions workflow:
 .github/workflows/reproduce-figure1.yml
 ```
 
+Reviewer-facing evidence index:
+
+```text
+REPRODUCTION_EVIDENCE.md
+```
+
 ## Important supersession notice
 
 The older D27 reproducibility pipeline remains in this repository as historical evidence of what the project computed at that stage. Later reviewer-driven audits changed the manuscript-level interpretation.
