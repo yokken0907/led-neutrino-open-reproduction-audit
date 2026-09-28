@@ -60,7 +60,7 @@ jobs:
             echo "source_commit=$GITHUB_SHA"
             echo "runner_os=$RUNNER_OS"
             python --version
-            echo "figure1_verdict=$(python -c "import json;print(json.load(open('../../../results/figure1/D29B_RESULT.json'))['verdict'])")"
+            echo "figure1_verdict=$(python -c "import json;print(json.load(open('../../results/figure1/D29B_RESULT.json'))['verdict'])")"
           } > BUILD_CI.txt
           grep -q "PASS_FIGURE1_COMPUTATIONAL_CORE_INDEPENDENT_REPLICATION_AFTER_CONDITIONING_AUDIT" BUILD_CI.txt
 
