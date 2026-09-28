@@ -1,0 +1,5 @@
+workflow=Build ReScience manuscript v0.3.1
+source_commit=1f30a977dcdb748d1badfe8d7f584d7411ac877f
+runner_os=Linux
+Python 3.12.14
+figure1_verdict=PASS_FIGURE1_COMPUTATIONAL_CORE_INDEPENDENT_REPLICATION_AFTER_CONDITIONING_AUDIT
