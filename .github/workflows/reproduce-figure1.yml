@@ -1,0 +1,51 @@
+name: Reproduce Figure-1 partial replication
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "code/d29a_figure1_replication.py"
+      - "code/d29b_conditioning_validation.py"
+      - "environment/requirements-figure1-exact.txt"
+      - "reproduce_figure1.sh"
+      - ".github/workflows/reproduce-figure1.yml"
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install frozen environment
+        run: python -m pip install -r environment/requirements-figure1-exact.txt
+      - name: Run Figure-1 replication and conditioning audit
+        run: bash reproduce_figure1.sh
+      - name: Verify bounded replication metrics
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('results/figure1/D29A_RESULT.json').read_text())
+          b=json.loads(Path('results/figure1/D29B_RESULT.json').read_text())
+
+          assert a['verdict']=='FAIL_FIGURE1_COMPUTATIONAL_CORE_REPLICATION_GATE'
+          assert all(x['pass'] for x in a['triangulation'])
+          assert max(x['abs_difference'] for x in a['triangulation']) < 1e-7
+          assert all(v['sum_Nlambda2'] > 0.99 for v in a['unitarity'].values())
+          assert a['qualitative_text_checks']['lightest_overlap_orders_as_mu_decreases'] is True
+
+          assert b['verdict']=='PASS_FIGURE1_COMPUTATIONAL_CORE_INDEPENDENT_REPLICATION_AFTER_CONDITIONING_AUDIT'
+          assert b['root_count_checked']==3552
+          assert b['all_within_requested_solver_tolerance'] is True
+          assert b['substantive_d29a_gates_pass'] is True
+          assert b['max_backward_error_over_solver_tolerance'] < 1.0
+
+          print('FIGURE1_REPLICATION_CI_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: figure1-replication-results
+          path: results/figure1
