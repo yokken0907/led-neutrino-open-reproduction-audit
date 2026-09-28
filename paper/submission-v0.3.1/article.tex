@@ -1,0 +1,113 @@
+\documentclass[a4paper,oneside,10pt]{article}
+
+\usepackage[american]{babel}
+\usepackage{ifthen,etoolbox,tabularx,tikz,marginnote,csquotes,amsmath,mathtools}
+\usepackage[a4paper,left=4.5cm,right=3cm,top=3cm,bottom=3.5cm,heightrounded,headheight=12.1pt,marginparwidth=3cm,marginparsep=0.75cm,footskip=2cm]{geometry}
+\reversemarginpar
+\usepackage[default,light,semibold,tabular]{sourceserifpro}
+\usepackage[light,condensed]{roboto}
+\usepackage{sourcecodepro}
+\usepackage{microtype}
+\usepackage{xcolor}
+\definecolor{darkred}{HTML}{CF232B}
+\definecolor{darkgray}{HTML}{555555}
+\definecolor{lightgray}{HTML}{CCCCCC}
+\usepackage{titlesec}
+\titleformat{\section}{\Large\sffamily\bfseries}{\llap{\textcolor{lightgray}{\normalfont\sffamily\thesection}\hskip0.5em}}{0em}{}
+\titleformat{\subsection}{\large\sffamily\bfseries}{\llap{\textcolor{lightgray}{\normalfont\sffamily\thesubsection}\hskip0.5em}}{0em}{}
+\titleformat{\subsubsection}[runin]{\normalfont\sffamily\bfseries}{}{0em}{}[\mbox{ --- }]
+\usepackage[labelsep=period]{caption}
+\captionsetup{font=small,labelfont={sf,bf}}
+\usepackage{graphicx,booktabs,longtable,array,calc}
+\usepackage{enumitem}
+\setlength\parindent{0pt}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{authblk}
+\renewcommand\Affilfont{\normalfont\sffamily\footnotesize}
+\renewcommand\Authfont{\sffamily\bfseries\small}
+\setlength{\affilsep}{0.25em}
+\usepackage{fancyhdr}
+\usepackage{afterpage}
+\usepackage{float}
+\usepackage{hyperref}
+\hypersetup{bookmarks=true,breaklinks=true,pdfborder={0 0 0},colorlinks=true,citecolor=black,linkcolor=black,urlcolor=darkgray}
+\urlstyle{sf}
+\usepackage[backend=biber,style=numeric,sorting=none,giveninits=true,maxcitenames=3,mincitenames=1,maxbibnames=10,isbn=false,url=true,doi=true,autocite=superscript,natbib=true]{biblatex}
+\addbibresource{bibliography.bib}
+\DeclareFieldFormat{labelnumberwidth}{#1\adddot}
+\renewcommand*{\bibfont}{\small\sffamily}
+\setlength\bibitemsep{0pt}
+
+\newcommand{\articleTitle}{[Re] Do neutrinos dream in 5D? Partial replication of the Brane--Dirac spectrum and an audit of open exclusion reconstruction}
+\newcommand{\articleType}{Replication}
+\newcommand{\articleDomain}{Particle Physics}
+\newcommand{\codeURL}{https://github.com/yokken0907/led-neutrino-open-reproduction-audit/tree/73728590833e10c85eb2dd75bf844b825271b53d}
+\newcommand{\dataURL}{https://doi.org/10.5281/zenodo.17587229}
+\newcommand{\replicationDOI}{10.1007/JHEP05(2026)152}
+\newcommand{\replicationURL}{https://arxiv.org/abs/2512.02101}
+
+\title{\vspace{-2em}{\normalfont\sffamily\normalsize\textcolor{darkred}{\articleType~/~\articleDomain\\}}\vspace{-0.25em}{\sffamily\bfseries\LARGE\articleTitle}}
+\author[1]{Keiji Yoshimura}
+\affil[1]{Independent Researcher}
+\date{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\scriptsize\sffamily Figure-1 partial replication and exclusion-reconstruction audit}
+\rhead{\scriptsize\sffamily\bfseries\fbox{SUBMISSION CANDIDATE}}
+\lfoot{\scriptsize\sffamily\textbf{ReScience C} -- manuscript v0.3.1}
+\rfoot{\scriptsize\sffamily\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\begin{document}
+
+\begin{tikzpicture}[remember picture,overlay]
+  \node[shape=rectangle,draw=darkred,fill=darkred,yshift=-34mm,anchor=north west,minimum width=3.75cm,minimum height=10mm] at (current page.north west) {};
+  \node[text=white,anchor=center,yshift=-39mm,xshift=1.875cm] at (current page.north west) {\small\sffamily\bfseries RESCIENCE C};
+\end{tikzpicture}
+
+{\let\newpage\relax\maketitle}
+
+{\small\sffamily
+ORCID: \href{https://orcid.org/0009-0007-6631-1038}{0009-0007-6631-1038}\\
+Correspondence: \href{mailto:keiji.yoshimura.research@gmail.com}{keiji.yoshimura.research@gmail.com}\par}
+\vspace{0.75em}
+
+\marginnote{\footnotesize\sffamily
+\textbf{Submission status}\\
+Pre-submission final\\[1em]
+\textbf{Original article}\\
+de Giorgi, Pasari \& Turner (2026)\\[1em]
+\textbf{DOI}\\
+\href{https://doi.org/\replicationDOI}{\replicationDOI}\\[1em]
+\textbf{Replication class}\\
+\texttt{[Re]} -- partial\\
+(Figure 1 subset only)
+}
+
+{\small\sffamily\textbf{A partial replication of} \href{\replicationURL}{A. de Giorgi, D. Pasari, and J. Turner, \emph{Do neutrinos dream in 5D? Towards a comprehensive extra-dimensional neutrino phenomenology}, JHEP 2026, 152 (2026).}\par}
+\vspace{1em}
+
+\begin{abstract}
+\noindent
+We report a partial computational replication of the Brane--Dirac spectrum in Figure~1 of de Giorgi, Pasari, and Turner, together with a bounded audit of an attempted open reconstruction of their experiment-level exclusion contours. The successful replicated subset is restricted to the theoretical spectrum defined by Eqs.~(3.26)--(3.28). Starting from the published equations alone, without using the target authors' code, our previous LED kernel, Newtrinos, or a Daya Bay likelihood, we independently solved the infinite-tower eigenvalue equation for $m_D=1$ and $\mu_1=\{10,1,0.1\}$ and reproduced the corresponding mixing-normalisation structure. A second implementation based on finite KK sums at $N=5000,10000,20000$ followed by $1/N$ extrapolation agreed with the closed-form roots at all nine preregistered anchors, with a maximum mass difference of $1.29\times10^{-9}$. The truncated sums of $N_\lambda^2$ exceeded the target paper's $99\%$ numerical criterion for all three parameter choices. An initially failed raw equation-residual gate was subsequently shown to be ill-conditioned near cotangent poles: all 3552 plotted roots lie within the requested solver-coordinate tolerance under a derivative-scaled backward-error test, with a maximum normalized error of 0.2501; two worst cases were independently confirmed at 80-digit precision. We also tested four digitized Daya Bay points from Figure~5. None produced a unique pointwise replication candidate because the open comparator crossed the $\Delta\chi^2=4.605$ threshold multiple times within each digitization interval. Separately, the public Daya Bay covariance-fit reference was reproduced in the frozen environment to an absolute $\chi^2$ difference of $1.33\times10^{-11}$, while our earlier fixed-coordinate profiling route was shown to be non-equivalent to that public full fit. We therefore classify the work as a partial replication of Figure~1 only; no replication of the published exclusion contours, no new LED signal, and no error in the original analysis are claimed.
+\end{abstract}
+
+\input{content.tex}
+
+\section*{Replication-status statement}
+This manuscript uses the \texttt{[Re]} prefix only for the independently reproduced Figure~1 Brane--Dirac spectrum subset. ReScience C's current reviewer guidance defines a partial replication as a successful replication of a subset of the original results. The experiment-level Figure~5 exclusion contours remain unresolved in the open reconstruction reported here and are explicitly excluded from the successful-replication claim. We do not use $[\neg\mathrm{Re}]$ because the present audit does not establish that the original exclusion analysis is non-replicable or mistaken.
+
+\section*{AI-use disclosure}
+OpenAI ChatGPT was used as an assistive tool for code drafting, audit organisation, manuscript drafting, and consistency checking. Numerical claims in this article were accepted only when reproduced by executable scripts and traced to frozen result artifacts or primary sources. The author selected the research questions, executed the computational packages, reviewed the outputs, and remains responsible for the scientific claims and the manuscript.
+
+\section*{Competing interests}
+The author declares no competing interests.
+
+\section*{Code and data}
+Frozen public code revision: \href{\codeURL}{\detokenize\expandafter{\codeURL}}. The manuscript-facing Figure~1 workflow was independently rerun on GitHub-hosted Ubuntu in \href{https://github.com/yokken0907/led-neutrino-open-reproduction-audit/actions/runs/36403948683}{workflow run 36403948683}, which completed successfully and uploaded artifact~10962090038 (SHA-256 \texttt{9f0d1b782f9995f2c4379446e5af4c7aadb46c375a7096b66610dba36823cea3}). Daya Bay public data authority: \href{\dataURL}{\detokenize\expandafter{\dataURL}}.
+
+\printbibliography
+
+\end{document}
