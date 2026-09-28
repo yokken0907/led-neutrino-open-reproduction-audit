@@ -1,0 +1,64 @@
+# ReScience C submission metadata -- v0.3.1
+
+title: "[Re] Do neutrinos dream in 5D? Partial replication of the Brane-Dirac spectrum and an audit of open exclusion reconstruction"
+
+authors:
+  - name: Yoshimura, Keiji
+    orcid: 0009-0007-6631-1038
+    email: keiji.yoshimura.research@gmail.com
+    affiliations: 1,*
+
+affiliations:
+  - code: 1
+    name: Independent Researcher
+    address:
+
+keywords: ReScience C, large extra dimensions, neutrino oscillations, Brane-Dirac spectrum, computational replication, reproducibility, Python
+
+code:
+  - url: https://github.com/yokken0907/led-neutrino-open-reproduction-audit/tree/73728590833e10c85eb2dd75bf844b825271b53d
+  - doi:
+  - swh:
+
+data:
+  - url: https://doi.org/10.5281/zenodo.17587229
+  - doi: 10.5281/zenodo.17587229
+
+replication:
+  - cite: "A. de Giorgi, D. Pasari, and J. Turner, Do neutrinos dream in 5D? Towards a comprehensive extra-dimensional neutrino phenomenology, JHEP 2026, 152 (2026)."
+  - bib: degiorgi2026
+  - url: https://arxiv.org/abs/2512.02101
+  - doi: 10.1007/JHEP05(2026)152
+
+abstract: "We report a partial computational replication of the Brane-Dirac spectrum in Figure 1 of de Giorgi, Pasari, and Turner, together with a bounded audit of an attempted open reconstruction of their experiment-level exclusion contours. The successful replicated subset is restricted to Eqs. (3.26)-(3.28) and Figure 1. Independent infinite-tower and finite-KK implementations agree at nine preregistered anchors with a maximum mass difference of 1.29e-9, and the truncated sums of N_lambda^2 exceed the target paper's 99% numerical criterion for all three published parameter choices. A conditioning audit over 3552 roots resolves an initially failed raw-residual diagnostic: every root lies within the requested solver-coordinate tolerance, with a maximum normalized backward error of 0.2501, and two worst cases are confirmed at 80-digit precision. Four digitized Daya Bay points from Figure 5 do not yield unique pointwise replication candidates because the open comparator has multiple local threshold crossings inside each digitization interval. The public Daya Bay covariance-fit reference is independently reproduced to an absolute chi-square difference of 1.33e-11, while an earlier fixed-coordinate profiling route is shown to be non-equivalent. The [Re] claim is therefore restricted to the theoretical Figure-1 subset; no exclusion-contour replication, new LED signal, or error in the original analysis is claimed."
+
+bibliography: bibliography.bib
+type: Replication
+domain: Particle Physics
+language: Python
+
+review:
+  - url:
+contributors:
+  - name:
+    orcid:
+    role: editor
+  - name:
+    orcid:
+    role: reviewer
+  - name:
+    orcid:
+    role: reviewer
+dates:
+  - received:
+  - accepted:
+  - published:
+article:
+  - number:
+  - doi:
+  - url:
+journal:
+  - name: "ReScience C"
+  - issn: 2430-3658
+  - volume:
+  - issue:
