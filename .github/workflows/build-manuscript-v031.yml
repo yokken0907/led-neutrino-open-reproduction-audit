@@ -1,0 +1,88 @@
+name: Build ReScience manuscript v0.3.1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - manuscript-v0.3.1-public
+    paths:
+      - "paper/submission-v0.3.1/article.tex"
+      - "paper/submission-v0.3.1/content.tex"
+      - "paper/submission-v0.3.1/bibliography.bib"
+      - "paper/submission-v0.3.1/metadata.yaml"
+      - ".github/workflows/build-manuscript-v031.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: environment/requirements-figure1-exact.txt
+
+      - name: Install Figure-1 frozen environment
+        run: python -m pip install -r environment/requirements-figure1-exact.txt
+
+      - name: Reproduce manuscript Figure 1
+        run: |
+          rm -rf results/figure1
+          bash reproduce_figure1.sh results/figure1
+          mkdir -p paper/submission-v0.3.1/figures
+          cp results/figure1/FIGURE1_INDEPENDENT_REPLICA.png              paper/submission-v0.3.1/figures/fig1_brane_dirac_replica.png
+
+      - name: Install TeX toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends             latexmk texlive-xetex texlive-latex-extra texlive-bibtex-extra             texlive-fonts-extra biber poppler-utils
+
+      - name: Build PDF
+        working-directory: paper/submission-v0.3.1
+        run: |
+          latexmk -xelatex -interaction=nonstopmode article.tex
+          test -s article.pdf
+          pdfinfo article.pdf | tee PDFINFO_CI.txt
+          PAGES="$(pdfinfo article.pdf | awk '/^Pages:/ {print $2}')"
+          test "$PAGES" = "8"
+          sha256sum article.pdf metadata.yaml             figures/fig1_brane_dirac_replica.png | tee BUILD_CI_SHA256.txt
+
+      - name: Record CI provenance
+        working-directory: paper/submission-v0.3.1
+        run: |
+          {
+            echo "workflow=Build ReScience manuscript v0.3.1"
+            echo "source_commit=$GITHUB_SHA"
+            echo "runner_os=$RUNNER_OS"
+            python --version
+            echo "figure1_verdict=$(python -c "import json;print(json.load(open('../../../results/figure1/D29B_RESULT.json'))['verdict'])")"
+          } > BUILD_CI.txt
+          grep -q "PASS_FIGURE1_COMPUTATIONAL_CORE_INDEPENDENT_REPLICATION_AFTER_CONDITIONING_AUDIT" BUILD_CI.txt
+
+      - name: Upload manuscript artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rescience-manuscript-v0.3.1
+          path: |
+            paper/submission-v0.3.1/article.pdf
+            paper/submission-v0.3.1/metadata.yaml
+            paper/submission-v0.3.1/BUILD_CI.txt
+            paper/submission-v0.3.1/BUILD_CI_SHA256.txt
+            paper/submission-v0.3.1/PDFINFO_CI.txt
+
+      - name: Commit generated public PDF
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add             paper/submission-v0.3.1/article.pdf             paper/submission-v0.3.1/figures/fig1_brane_dirac_replica.png             paper/submission-v0.3.1/BUILD_CI.txt             paper/submission-v0.3.1/BUILD_CI_SHA256.txt             paper/submission-v0.3.1/PDFINFO_CI.txt
+          if git diff --cached --quiet; then
+            echo "Generated files unchanged."
+          else
+            git commit -m "Build ReScience manuscript v0.3.1 PDF"
+            git push
+          fi
