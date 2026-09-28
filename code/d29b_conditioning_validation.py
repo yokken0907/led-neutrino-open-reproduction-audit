@@ -54,7 +54,6 @@ def main():
             'all_within_requested_solver_tolerance':within,'high_precision_checks':hp,
             'substantive_d29a_gates_pass':substantive,
             'verdict':'PASS_FIGURE1_COMPUTATIONAL_CORE_INDEPENDENT_REPLICATION_AFTER_CONDITIONING_AUDIT' if within and substantive else 'FAIL_FIGURE1_REPLICATION_AFTER_CONDITIONING_AUDIT'}
-    Path(a.out).write_text(json.dumps(result,indent=2)+'
-')
+    Path(a.out).write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result,indent=2))
 if __name__=='__main__': main()
