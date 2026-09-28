@@ -19,6 +19,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: environment/requirements-figure1-exact.txt
       - name: Install frozen environment
         run: python -m pip install -r environment/requirements-figure1-exact.txt
       - name: Run Figure-1 replication and conditioning audit
