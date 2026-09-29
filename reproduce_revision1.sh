@@ -2,8 +2,8 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT="${1:-$ROOT/results/revision1}"
-PDF_SHA="2850f1c631b07de992cc72dd2b9c8aab80c10e7bccf51a421d90e80373f627c3"
-PDF_URL="https://link.springer.com/content/pdf/10.1007/JHEP05%282026%29152.pdf"
+SCOAP3_RECORD="107173"
+SCOAP3_API="https://repo.scoap3.org/api/records/$SCOAP3_RECORD"
 
 rm -rf "$OUT"
 mkdir -p "$OUT/figure1" "$OUT/d29c" "$OUT/d30a" "$OUT/d30b" "$OUT/target"
@@ -15,14 +15,51 @@ echo "[2/9] Validate all 3552 roots directly at 80-digit precision (D29C)"
 python "$ROOT/code/d29c_all_root_80digit_direct_validation.py"   --input-dir "$OUT/figure1" --outdir "$OUT/d29c" --self-test
 python "$ROOT/code/d29c_all_root_80digit_direct_validation.py"   --input-dir "$OUT/figure1" --outdir "$OUT/d29c"
 
-echo "[3/9] Acquire the version-of-record target PDF"
-PDF="$OUT/target/JHEP05_2026_152.pdf"
-curl -fL --retry 3 --retry-delay 2   -A "Mozilla/5.0 (ReScience replication audit; contact in repository metadata)"   "$PDF_URL" -o "$PDF"
-ACTUAL_PDF_SHA="$(sha256sum "$PDF" | awk '{print $1}')"
-if [[ "$ACTUAL_PDF_SHA" != "$PDF_SHA" ]]; then
-  echo "TARGET_PDF_SHA_MISMATCH expected=$PDF_SHA actual=$ACTUAL_PDF_SHA" >&2
-  exit 2
-fi
+echo "[3/9] Acquire the published article from the SCOAP3 open repository"
+PDF="$OUT/target/JHEP05_2026_152_SCOAP3.pdf"
+META="$OUT/target/SCOAP3_RECORD_107173.json"
+curl -fL --retry 3 --retry-delay 2 "$SCOAP3_API" -o "$META"
+readarray -t PDF_INFO < <(python - "$META" <<'PY'
+import json,sys
+m=json.load(open(sys.argv[1]))
+entries=m.get('files',{}).get('entries',{})
+cand=[]
+for name,e in entries.items():
+    if name.lower().endswith('.pdf'):
+        cand.append((name,e.get('links',{}).get('content'),e.get('checksum','')))
+if not cand:
+    raise SystemExit('SCOAP3_RECORD_HAS_NO_PDF')
+cand.sort(key=lambda q:(0 if ('pdfa' in q[0].lower() or 'pdf-a' in q[0].lower()) else 1,q[0]))
+name,url,checksum=cand[0]
+if not url:
+    raise SystemExit('SCOAP3_PDF_CONTENT_LINK_MISSING')
+print(name); print(url); print(checksum)
+PY
+)
+PDF_NAME="${PDF_INFO[0]}"
+PDF_URL="${PDF_INFO[1]}"
+PDF_CHECKSUM="${PDF_INFO[2]}"
+echo "SCOAP3_PDF_NAME=$PDF_NAME"
+echo "SCOAP3_PDF_CHECKSUM=$PDF_CHECKSUM"
+curl -fL --retry 3 --retry-delay 2 "$PDF_URL" -o "$PDF"
+python - "$PDF" "$PDF_CHECKSUM" <<'PY'
+from pathlib import Path
+import hashlib,sys
+p=Path(sys.argv[1]); spec=sys.argv[2]
+if ':' not in spec:
+    raise SystemExit(f'UNSUPPORTED_SCOAP3_CHECKSUM {spec!r}')
+alg,expected=spec.split(':',1)
+if alg not in hashlib.algorithms_available:
+    raise SystemExit(f'UNSUPPORTED_SCOAP3_CHECKSUM_ALGORITHM {alg}')
+h=hashlib.new(alg); h.update(p.read_bytes())
+actual=h.hexdigest()
+if actual.lower()!=expected.lower():
+    raise SystemExit(f'SCOAP3_CHECKSUM_MISMATCH expected={spec} actual={alg}:{actual}')
+print('SCOAP3_SOURCE_CHECKSUM_PASS')
+PY
+PDF_SHA="$(sha256sum "$PDF" | awk '{print $1}')"
+echo "$PDF_SHA  $(basename "$PDF")" > "$OUT/target/TARGET_PDF_SHA256.txt"
+echo "TARGET_PDF_SHA256=$PDF_SHA"
 
 echo "[4/9] Run D30A static regression tests"
 python "$ROOT/tests/test_d30a_static.py"
