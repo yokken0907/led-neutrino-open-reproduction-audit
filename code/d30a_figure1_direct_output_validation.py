@@ -638,3 +638,73 @@ def detect_anchor(rgb,sp,cal,mu,n,sat_min):
     objs=ndimage.find_objects(lab)
     candidates=[]
     min_area=max(3,int(round(4*(rgb.shape[1]/1800.0)**2)))
+    for label_id,sl in enumerate(objs,1):
+        if sl is None: continue
+        yy,xx=sl
+        yy0,yy1=yy.start,yy.stop; xx0,xx1=xx.start,xx.stop
+        component=(lab[yy0:yy1,xx0:xx1]==label_id)
+        area=int(component.sum())
+        if area<min_area: continue
+        cy,cx=ndimage.center_of_mass(component)
+        gx=xa+xx0+cx; gy=ya+yy0+cy
+        # Reject page text / legend-like large structures in local windows.
+        bw=xx1-xx0; bh=yy1-yy0
+        if bw>0.075*pw or bh>0.10*ph:
+            continue
+        dist=((gx-px)/pw)**2+((gy-py)/ph)**2
+        candidates.append((dist,area,gx,gy,xa+xx0,xa+xx1-1,ya+yy0,ya+yy1-1,bw,bh))
+    if not candidates:
+        return {"status":"NO_ADMISSIBLE_COMPONENT","mu1":mu,"n":n}
+    candidates.sort(key=lambda z:(z[0],-z[1]))
+    dist,area,gx,gy,x0,x1,y0,y1,bw,bh=candidates[0]
+
+    # Graphical digitization envelope: actual colored component footprint expanded
+    # only by one raster pixel and the measured axis-calibration residual.
+    xlog0=cal["log10x_per_pixel"]*(x0-1)+cal["log10x_intercept"]
+    xlog1=cal["log10x_per_pixel"]*(x1+1)+cal["log10x_intercept"]
+    ylog0=cal["log10y_per_pixel"]*(y0-1)+cal["log10y_intercept"]
+    ylog1=cal["log10y_per_pixel"]*(y1+1)+cal["log10y_intercept"]
+    xmin,xmax=sorted((10**xlog0,10**xlog1))
+    ymin,ymax=sorted((10**ylog0,10**ylog1))
+    # calibration uncertainty in log coordinates
+    xpad=cal["x_log10_max_residual"]; ypad=cal["y_log10_max_residual"]
+    xmin/=10**xpad; xmax*=10**xpad
+    ymin/=10**ypad; ymax*=10**ypad
+
+    xc,yc=pix_to_xy(gx,gy,cal)
+    inside=(xmin<=m<=xmax and ymin<=nl<=ymax)
+    return {
+        "status":"DETECTED",
+        "mu1":mu,"n":n,"sat_min":sat_min,
+        "theory_m_lambda":m,"theory_N_lambda":nl,
+        "digitized_center_m_lambda":xc,"digitized_center_N_lambda":yc,
+        "digitized_envelope_m_lambda":[xmin,xmax],
+        "digitized_envelope_N_lambda":[ymin,ymax],
+        "theory_inside_graphical_envelope":bool(inside),
+        "component_area_pixels":area,
+        "component_bbox_pixels":[int(x0),int(y0),int(x1),int(y1)],
+        "component_width_pixels":int(bw),"component_height_pixels":int(bh),
+        "normalized_center_distance_to_theory":float(math.sqrt(dist)),
+        "predicted_pixel":[px,py],
+        "detected_center_pixel":[float(gx),float(gy)],
+    }
+
+
+def summarize_anchor(records):
+    good=[r for r in records if r.get("status")=="DETECTED"]
+    dpis=sorted(set(r["dpi"] for r in good))
+    passes=[r for r in good if r["theory_inside_graphical_envelope"]]
+    robust=(len(dpis)>=2 and len(good)>=4)
+    contradictory=(
+        len(dpis)>=2 and
+        sum(not r["theory_inside_graphical_envelope"] for r in good)>=max(2,len(good)//2)
+    )
+    if good:
+        xc=np.median([r["digitized_center_m_lambda"] for r in good])
+        yc=np.median([r["digitized_center_N_lambda"] for r in good])
+        tx=good[0]["theory_m_lambda"]; ty=good[0]["theory_N_lambda"]
+        return {
+            "mu1":good[0]["mu1"],"n":good[0]["n"],
+            "robust_detection":robust,
+            "contradictory_detection":contradictory,
+            "successful_estimates":len(good),
