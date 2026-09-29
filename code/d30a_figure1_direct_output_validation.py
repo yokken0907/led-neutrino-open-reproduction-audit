@@ -258,3 +258,103 @@ def x_tick_strength(dark,sp):
     raster that can merge neighbouring log-minor ticks and shift a local maximum
     away from the printed major-decade stroke. v5.1.1 keeps the science gate
     unchanged and only makes tick identification more literal.
+    """
+    L,R,T,B=[sp[k] for k in ("left","right","top","bottom")]
+    ph=B-T
+    extent=max(10,int(0.035*ph))
+
+    # bottom ticks
+    y0=max(0,B-extent); y1=min(dark.shape[0],B+max(5,int(0.012*ph))+1)
+    bot=dark[y0:y1,L:R+1].copy()
+    br=B-y0
+    bot[max(0,br-2):min(bot.shape[0],br+3),:]=False
+
+    # top ticks
+    z0=max(0,T-max(5,int(0.012*ph))); z1=min(dark.shape[0],T+extent+1)
+    top=dark[z0:z1,L:R+1].copy()
+    tr=T-z0
+    top[max(0,tr-2):min(top.shape[0],tr+3),:]=False
+
+    return (bot.sum(axis=0)+top.sum(axis=0)).astype(float)
+
+
+def y_tick_strength(dark,sp):
+    L,R,T,B=[sp[k] for k in ("left","right","top","bottom")]
+    pw=R-L
+    left=max(6,int(0.020*pw)); right=max(8,int(0.030*pw))
+    x0=max(0,L-left); x1=min(dark.shape[1],L+right+1)
+    band=dark[T:B+1,x0:x1].copy()
+    lc=L-x0
+    band[:,max(0,lc-2):min(band.shape[1],lc+3)]=False
+    return band.sum(axis=1).astype(float)
+
+
+def choose_local_peak(strength,expected_index,radius):
+    """Used for y ticks, where the original v5.1.0 method already passed."""
+    lo=max(0,int(round(expected_index-radius)))
+    hi=min(len(strength),int(round(expected_index+radius))+1)
+    if hi<=lo:
+        raise RuntimeError("empty tick search window")
+    # Keep smoothing narrow enough not to merge neighbouring individual ticks.
+    sm=ndimage.gaussian_filter1d(strength.astype(float),sigma=1.0)
+    return lo+int(np.argmax(sm[lo:hi]))
+
+
+def local_x_candidates(strength, expected_index, radius, max_candidates=10):
+    """Return plausible individual tick strokes around one expected decade tick.
+
+    The expected fractions are identification priors only. They are not used as
+    an acceptance tolerance for the scientific target/output comparison.
+    """
+    lo=max(0,int(round(expected_index-radius)))
+    hi=min(len(strength),int(round(expected_index+radius))+1)
+    if hi<=lo:
+        return []
+    sm=ndimage.gaussian_filter1d(strength.astype(float),sigma=1.0)
+    seg=sm[lo:hi]
+    distance=max(2,int(round(0.004*len(strength))))
+    peaks,_=find_peaks(seg,distance=distance)
+    if len(peaks)==0:
+        peaks=np.array([int(np.argmax(seg))])
+    cand=[]
+    local_max=float(np.max(seg)) if len(seg) else 1.0
+    for q in peaks:
+        j=lo+int(q)
+        # retain both proximity to the expected major position and literal
+        # stroke strength; do not let a broad cluster of minor ticks win.
+        proximity=abs(j-expected_index)/max(radius,1.0)
+        strength_norm=float(sm[j]/local_max) if local_max>0 else 0.0
+        cand.append((proximity-0.20*strength_norm,j,strength_norm))
+    cand.sort()
+    return [(j,sn) for _,j,sn in cand[:max_candidates]]
+
+
+def choose_x_major_tick_tuple(strength,pw):
+    """Identify the printed 0.1,1,10,100 major ticks as a coherent 4-tuple.
+
+    All four values are consecutive decades, so on a log x-axis their pixel
+    spacings must be equal. This whole-tuple constraint prevents an isolated
+    log-minor tick from being selected merely because it is locally darker.
+    """
+    pools=[]
+    for f in X_EXPECTED_FRAC:
+        pools.append(local_x_candidates(
+            strength, f*pw, radius=0.050*pw, max_candidates=12
+        ))
+    if any(not q for q in pools):
+        raise RuntimeError("insufficient x tick candidates")
+
+    sm=ndimage.gaussian_filter1d(strength.astype(float),sigma=1.0)
+    best=None
+    for combo in itertools.product(*pools):
+        js=np.array([c[0] for c in combo],float)
+        if not np.all(np.diff(js)>0):
+            continue
+        gaps=np.diff(js)
+        mean_gap=float(np.mean(gaps))
+        if mean_gap<=0:
+            continue
+        gap_cv=float(np.std(gaps)/mean_gap)
+        frac=js/pw
+        frac_rms=float(np.sqrt(np.mean((frac-X_EXPECTED_FRAC)**2)))
+
