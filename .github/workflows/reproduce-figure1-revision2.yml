@@ -1,0 +1,39 @@
+name: Reproduce Figure-1 Revision-2 end-to-end
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "code/d29a_figure1_replication.py"
+      - "code/d29b_conditioning_validation.py"
+      - "code/d29c_all_root_high_precision.py"
+      - "code/graphical_validation/**"
+      - "expected/FIGURE1_TARGET_PDF_SHA256.txt"
+      - "environment/requirements-figure1-exact.txt"
+      - "reproduce_figure1_revision2.sh"
+      - "Dockerfile"
+      - "README.md"
+      - "FIGURE1_REPLICATION_README.md"
+      - "REPRODUCTION_EVIDENCE.md"
+      - "docs/FIGURE1_GRAPHICAL_VALIDATION.md"
+      - ".github/workflows/reproduce-figure1-revision2.yml"
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: environment/requirements-figure1-exact.txt
+      - name: Install version-pinned environment
+        run: python -m pip install -r environment/requirements-figure1-exact.txt
+      - name: Run full Revision-2 reproduction
+        run: bash reproduce_figure1_revision2.sh
+      - name: Archive end-to-end results
+        uses: actions/upload-artifact@v4
+        with:
+          name: figure1-revision2-end-to-end-results
+          path: results/figure1-revision2
