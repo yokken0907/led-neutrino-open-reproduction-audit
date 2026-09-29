@@ -1,6 +1,6 @@
 # Reproduction evidence index
 
-This file is a reviewer-facing index to the currently supported manuscript claim.
+This is the reviewer-facing index for the bounded ReScience C manuscript claim.
 
 ## Supported replicated subset
 
@@ -8,113 +8,97 @@ The successful replicated subset is **Figure 1 / the Brane-Dirac spectrum** of:
 
 A. de Giorgi, D. Pasari, J. Turner, *Do neutrinos dream in 5D? Towards a comprehensive extra-dimensional neutrino phenomenology*, JHEP 05 (2026) 152.
 
-The replication is limited to the computational core defined by the published Brane-Dirac eigensystem:
+The claim is restricted to the computational content of the published Brane-Dirac eigensystem:
 - physical roots of Eq. (3.26);
 - normalization coefficients of Eq. (3.27);
 - the unitarity sum of Eq. (3.28);
-- the published Figure-1 parameter choices (m_D=1) and (mu_1={10,1,0.1}).
+- the published Figure-1 parameter choices `m_D=1` and `mu_1={10,1,0.1}`.
 
-The calculation does not use target-author analysis code, Daya Bay likelihood code, Newtrinos, or the project's earlier LED likelihood kernel.
+Not claimed: Figure-5 exclusion-contour replication, replay of the target-author experimental likelihood, a new LED signal, or an error in the original article.
 
-## Public source freeze
+## Numerical core: D29A/D29B
 
-Manuscript-facing repository commit:
+D29A independently reimplements the published infinite-tower equation and cross-checks it with a mathematically distinct finite-KK route at N=5000,10000,20000 followed by leading-1/N Richardson extrapolation.
 
-`73728590833e10c85eb2dd75bf844b825271b53d`
-
-This is the merge commit for the Figure-1 partial-replication workflow.
-
-Relevant public files:
-- `code/d29a_figure1_replication.py`
-- `code/d29b_conditioning_validation.py`
-- `environment/requirements-figure1-exact.txt`
-- `reproduce_figure1.sh`
-- `.github/workflows/reproduce-figure1.yml`
-
-## Independent numerical checks
-
-D29A uses two independent numerical routes:
-1. direct roots of the published infinite-tower Eq. (3.26);
-2. a finite-KK implementation at (N=5000,10000,20000), followed by (1/N) Richardson extrapolation.
-
-All nine frozen triangulation anchors pass. The maximum absolute root difference is:
+All nine pre-specified triangulation anchors pass. The maximum absolute root difference is:
 
 `1.2910152946687958e-09`
 
-The paper's >99% unitarity criterion is also satisfied for all three Figure-1 parameter choices:
-- (mu_1=10): (sum N_lambda^2=0.9996850466854103)
-- (mu_1=1): (sum N_lambda^2=0.9921727356755364)
-- (mu_1=0.1): (sum N_lambda^2=0.9938965788157853)
+The paper's >99% unitarity truncation criterion is satisfied for all three published Figure-1 parameter choices:
+- mu1=10: `0.9996850466854103`
+- mu1=1: `0.9921727356755364`
+- mu1=0.1: `0.9938965788157853`
 
-## Preserved D29A diagnostic failure and D29B correction
-
-D29A deliberately preserves the original automatic result:
+D29A deliberately preserves the original automatic raw-equation-residual verdict:
 
 `FAIL_FIGURE1_COMPUTATIONAL_CORE_REPLICATION_GATE`
 
-The only failing diagnostic is a raw Eq. (3.26) residual threshold applied to high cotangent modes.
+D29B diagnoses why that raw residual is a poor coordinate-accuracy metric near cotangent poles using the Newton correction / derivative-scaled residual `|F/F'|`. It does not erase the D29A failure.
 
-D29B does not relax that raw-residual threshold. It evaluates conditioning-aware coordinate backward error across all 3552 plotted roots and checks the two diagnostic worst cases at high precision.
+## Direct all-root high-precision validation: D29C
 
-D29B results:
-- roots checked: `3552`
-- all roots within requested solver coordinate tolerance: `true`
-- maximum normalized backward error: `0.25009539975842393`
-- high-precision worst-case mass differences: approximately (2.9	imes10^{-12}) and (2.7	imes10^{-12})
+D29C directly re-solves all 3552 plotted roots at 80-digit precision and compares the stored binary64 roots with the high-precision solutions using the pre-existing Brent coordinate tolerance `xtol + rtol*|y|`.
 
-Bounded final verdict:
+Authority-run result:
+- roots checked: 3552 / 3552
+- maximum binary64 error / inherited solver tolerance: `0.25033133171637295`
+- maximum binary64 |Delta m|: `7.65012708620728e-12`
+- maximum stored high-precision equation residual: approximately `2.80e-54`
+- verdict: `PASS_D29C_ALL_3552_ROOTS_HIGH_PRECISION_DIRECT_VALIDATION`
 
-`PASS_FIGURE1_COMPUTATIONAL_CORE_INDEPENDENT_REPLICATION_AFTER_CONDITIONING_AUDIT`
+This direct comparison is the primary root-coordinate accuracy evidence in Revision 1.
 
-The original D29A automatic FAIL remains in the audit trail.
+## Direct comparison with the published Figure 1: D30A/D30B
 
-## External GitHub-hosted reproduction
+D30A compares 15 pre-specified graphical anchors with the version-of-record Figure 1 at 400/600/800 dpi and multiple saturation thresholds. The target PDF is SHA-pinned.
 
-GitHub Actions run:
+The frozen D30A machine result is preserved:
+- 12 / 15 robust direct graphical matches;
+- two robust machine mismatches at mu1=10, n=5 and n=10;
+- one insufficient-support anchor at mu1=0.1, n=20;
+- machine verdict: `FAIL_DIRECT_TARGET_OUTPUT_DISAGREEMENT`.
 
-`36403948683`
+D30B separately adjudicates only the two D30A contradictions. Its positive-control-derived threshold excludes the target anchors from threshold construction. Both n=5 and n=10 pass registration and independent occlusion-signature checks across all tested dpi/saturation combinations.
 
-Workflow:
-`Reproduce Figure-1 partial replication`
+D30B verdict:
 
-Runner:
-- Ubuntu 24.04.5
-- Python 3.12.14
+`PASS_D30B_OCCLUSION_ARTIFACT_CONFIRMED`
 
-The hosted run completed successfully and emitted:
+Combined bounded graphical support:
+- mu1=10: 3/5 direct + 2/5 occlusion-adjudicated = 5/5 supported;
+- mu1=1: 5/5 direct;
+- mu1=0.1: 4/5 direct; n=20 remains insufficient graphical support.
 
-`FIGURE1_REPLICATION_CI_PASS`
+The D30A machine FAIL is not retroactively rewritten.
 
-Uploaded artifact:
-- name: `figure1-replication-results`
-- artifact ID: `10962090038`
-- size: `203948` bytes
-- SHA-256: `9f0d1b782f9995f2c4379446e5af4c7aadb46c375a7096b66610dba36823cea3`
+## Local one-command workflows
 
-The downloaded artifact SHA-256 was independently rechecked against the GitHub-recorded digest and matched exactly.
-
-## One-command local reproduction
+Original numerical-core workflow:
 
 ```bash
 python -m pip install -r environment/requirements-figure1-exact.txt
 bash reproduce_figure1.sh
 ```
 
-Expected final bounded verdict:
+Revision-1 reviewer-facing workflow:
 
-```text
-PASS_FIGURE1_COMPUTATIONAL_CORE_INDEPENDENT_REPLICATION_AFTER_CONDITIONING_AUDIT
+```bash
+python -m pip install -r environment/requirements-revision1-exact.txt
+bash reproduce_revision1.sh
 ```
 
-## Explicit claim boundary
+The Revision-1 runner performs D29A/B, all-root D29C, SHA-pinned version-of-record acquisition, D30A, D30B, and a final bounded claim gate.
 
-This evidence supports a **partial computational replication of Figure 1 only**.
+## Hosted CI
 
-It does not establish:
-- Figure-5 exclusion-contour replication;
-- exact replay of the target experimental likelihood;
-- replication of the Daya Bay or MINOS/MINOS+ exclusion analysis;
-- a new LED signal;
-- an error in the original JHEP article.
+The earlier public D29A/D29B workflow passed on GitHub Actions run `36403948683`, artifact ID `10962090038`.
 
-Reviewer-driven follow-up found the Figure-5 open reconstruction to have unresolved local threshold topology. Historical D25/D26 outputs are retained for provenance but do not define the current manuscript claim.
+Revision-1 hosted CI is defined in:
+
+`.github/workflows/reproduce-revision1.yml`
+
+Its fresh hosted result is intentionally not claimed until the pull-request/main run has completed and its artifact has been independently audited.
+
+## Historical supersession
+
+Historical D25/D26/D27 files remain for provenance. Later matched-grid and public-fit controls superseded earlier interpretations of Figure-5 threshold topology and Daya Bay calibration. Those historical files are not the current manuscript claim.
