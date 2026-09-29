@@ -10,7 +10,6 @@ from __future__ import annotations
 import argparse, csv, hashlib, importlib.util, json, os, shutil, subprocess, sys, urllib.request, zipfile
 from pathlib import Path
 
-CORE_ZIP_SHA = "ff0df115f16c5d64614b62160a12524e780a81025997f97fca6bef5d79a47193"
 # Archive container metadata is not treated as a scientific invariant.
 # The exact extracted analysis-source files are verified by SHA-256 below.
 D30A_PY_SHA = "aeaccbee8500662058a529315a87016ea170055305c9132f6f1a9db60a7a05ff"
@@ -143,8 +142,6 @@ def main():
     a=ap.parse_args()
     root=Path(a.repo_root).resolve(); out=Path(a.outdir).resolve(); out.mkdir(parents=True,exist_ok=True)
     archive=root/"provenance/graphical_core_source.zip"
-    if sha256(archive) != CORE_ZIP_SHA:
-        raise SystemExit("GRAPHICAL_CORE_SOURCE_ZIP_SHA_MISMATCH")
     src=out/"source"; src.mkdir(exist_ok=True)
     with zipfile.ZipFile(archive) as z:
         z.extractall(src)
