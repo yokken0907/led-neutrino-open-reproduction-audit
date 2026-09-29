@@ -1,0 +1,50 @@
+title: '[Re] Do neutrinos dream in 5D? Partial replication of the Brane-Dirac spectrum and limits of open exclusion-contour reconstruction'
+authors:
+- name: Yoshimura, Keiji
+  orcid: 0009-0007-6631-1038
+  email: keiji.yoshimura.research@gmail.com
+  affiliations: 1,*
+affiliations:
+- code: 1
+  name: Independent Researcher
+  address: null
+keywords: ReScience C, large extra dimensions, neutrino oscillations, Brane-Dirac spectrum, computational replication, reproducibility, Python
+code:
+- url: https://github.com/yokken0907/led-neutrino-open-reproduction-audit
+  doi: null
+  swh: null
+replication:
+- cite: A. de Giorgi, D. Pasari, and J. Turner, Do neutrinos dream in 5D? Towards a comprehensive extra-dimensional neutrino phenomenology, JHEP 2026, 152 (2026).
+  bib: degiorgi2026
+  url: https://arxiv.org/abs/2512.02101
+  doi: 10.1007/JHEP05(2026)152
+abstract: We report a partial computational replication of the Brane-Dirac spectrum in Figure 1 of de Giorgi, Pasari, and Turner and examine the limits of extending that replication toward experiment-level exclusion contours. Starting from the published equations alone, we solve the infinite-tower eigenvalue equation for m_D=1 and mu_1={10,1,0.1} and cross-check nine pre-specified test points with a mathematically distinct finite-KK calculation at N=5000,10000,20000 followed by a leading-1/N extrapolation; the largest mass difference is 1.29e-9, and the target paper's 99% unitarity criterion is satisfied for all three parameter choices. All 3552 double-precision roots generated over the Figure 1 plotting range are independently re-solved at 80-digit precision and agree within the Brent coordinate tolerance defined by xtol=1e-14 and rtol=1e-13, with a maximum normalized difference of 0.250331 and a maximum mass difference of 7.65e-12. A separate validation against the version-of-record Figure 1 finds graphical-footprint support for 12 of 15 pre-specified test points; two overlapping high-mode mu_1=10 markers are supported by a control-calibrated occlusion assessment, while one mu_1=0.1 point remains graphically unresolved. The pre-specified requirement of at least four supported points out of five for each mu_1 is satisfied. An exploratory open-data extension toward Figure 5 did not establish a unique pointwise correspondence with the published exclusion contour and is retained only to delimit the successful replication claim. The [Re] claim is therefore restricted to the theoretical Figure 1 subset; no exclusion-contour replication, new LED signal, or error in the original analysis is claimed.
+bibliography: bibliography.bib
+type: Replication
+domain: Particle Physics
+language: Python
+review:
+- url: null
+contributors:
+- name: null
+  orcid: null
+  role: editor
+- name: null
+  orcid: null
+  role: reviewer
+- name: null
+  orcid: null
+  role: reviewer
+dates:
+- received: null
+- accepted: null
+- published: null
+article:
+- number: null
+- doi: null
+- url: null
+journal:
+- name: ReScience C
+- issn: 2430-3658
+- volume: null
+- issue: null
