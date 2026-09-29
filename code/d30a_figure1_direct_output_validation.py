@@ -568,3 +568,73 @@ def calibrate_axes(page,clip,dpi,dark,sp):
         raise RuntimeError(f"duplicate tick picks x={xpix}, y={ypix}")
 
     Ax=np.vstack([xpix,np.ones_like(xpix)]).T
+    ay,bx=np.linalg.lstsq(Ax,np.log10(xvals),rcond=None)[0]
+    Ay=np.vstack([ypix,np.ones_like(ypix)]).T
+    by,cy=np.linalg.lstsq(Ay,np.log10(Y_TICK_VALUES),rcond=None)[0]
+    xres=np.max(np.abs(ay*xpix+bx-np.log10(xvals)))
+    yres=np.max(np.abs(by*ypix+cy-np.log10(Y_TICK_VALUES)))
+
+    # Frozen residual gates unchanged.
+    if xres>0.012 or yres>0.012:
+        raise RuntimeError(
+            f"axis calibration residual too large x={xres} y={yres}; "
+            f"x_triplet={xtri}"
+        )
+
+    inferred100=L+xtri["inferred_fourth_decade_pixel"]
+    return {
+        "x_tick_source":"raster first-three decade strokes (0.1,1,10)",
+        "x_tick_pixels":xpix.tolist(),
+        "x_tick_values":xvals.tolist(),
+        "x_triplet_diagnostics":xtri,
+        "x_inferred_100_tick_pixel":float(inferred100),
+        "x_100_role":"redundant QA only; not used in calibration fit",
+        "y_tick_source":"raster tick strokes",
+        "y_tick_pixels":ypix.tolist(),
+        "y_tick_values":Y_TICK_VALUES.tolist(),
+        "log10x_per_pixel":float(ay),"log10x_intercept":float(bx),
+        "log10y_per_pixel":float(by),"log10y_intercept":float(cy),
+        "x_log10_max_residual":float(xres),
+        "y_log10_max_residual":float(yres),
+    }
+
+
+
+def xy_to_pix(x,y,cal):
+    px=(math.log10(x)-cal["log10x_intercept"])/cal["log10x_per_pixel"]
+    py=(math.log10(y)-cal["log10y_intercept"])/cal["log10y_per_pixel"]
+    return float(px),float(py)
+
+
+def pix_to_xy(px,py,cal):
+    x=10**(cal["log10x_per_pixel"]*px+cal["log10x_intercept"])
+    y=10**(cal["log10y_per_pixel"]*py+cal["log10y_intercept"])
+    return float(x),float(y)
+
+
+def hue_mask(rgb,mu,sat_min):
+    hsv=rgb_to_hsv(np.clip(rgb.astype(float)/255.0,0,1))
+    h=hsv[...,0]; s=hsv[...,1]; v=hsv[...,2]
+    hlo,hhi=HUE_WINDOWS[mu]
+    return (h>=hlo)&(h<=hhi)&(s>=sat_min)&(v>=0.15)&(v<=0.98)
+
+
+def detect_anchor(rgb,sp,cal,mu,n,sat_min):
+    m=root_eq326(mu,n); nl=nlambda(m,mu)
+    px,py=xy_to_pix(m,nl,cal)
+    L,R,T,B=[sp[k] for k in ("left","right","top","bottom")]
+    pw=R-L; ph=B-T
+    # Search box is identification-only, not the acceptance tolerance.
+    rx=max(8,int(0.040*pw))
+    ry=max(8,int(0.055*ph))
+    xa=max(L,int(px-rx)); xb=min(R,int(px+rx)+1)
+    ya=max(T,int(py-ry)); yb=min(B,int(py+ry)+1)
+    if xa>=xb or ya>=yb:
+        return {"status":"PREDICTION_OUTSIDE_PLOT","mu1":mu,"n":n}
+    mask=hue_mask(rgb[ya:yb,xa:xb],mu,sat_min)
+    lab,num=ndimage.label(mask)
+    if num==0:
+        return {"status":"NO_COLORED_COMPONENT","mu1":mu,"n":n}
+    objs=ndimage.find_objects(lab)
+    candidates=[]
+    min_area=max(3,int(round(4*(rgb.shape[1]/1800.0)**2)))
