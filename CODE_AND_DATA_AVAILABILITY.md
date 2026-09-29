@@ -1,11 +1,20 @@
 # Code and data availability
 
-All original replication/audit code in this repository is intended for public release under the MIT license.
+The manuscript-facing replication code is public in this repository under the MIT license.
 
-Third-party public inputs are acquired at runtime from pinned or official upstream sources and verified against frozen SHA-256 hashes. The Daya Bay `DayaBay_DeltaChiSq_NO_3158days.txt` surface is obtained from official CaltechAUTHORS/arXiv routes with fallback handling; it is not redistributed by this repository.
+The successful [Re] claim is restricted to the Figure-1 Brane--Dirac spectrum. It requires no experimental event-level data or Daya Bay likelihood surface. The numerical spectrum is regenerated from the published equations, while the graphical validation uses the exact version-of-record target PDF identified by SHA-256:
 
-Upon journal submission/public release:
-- preserve the exact dependency lock files;
-- retain the successful GitHub Actions run and artifact;
-- archive a tagged release in Zenodo if/when a DOI is needed;
-- cite the Daya Bay data release and Newtrinos project directly.
+`2850f1c631b07de992cc72dd2b9c8aab80c10e7bccf51a421d90e80373f627c3`.
+
+The target article PDF and any other third-party material retain their upstream copyright and license terms; see `licenses/THIRD_PARTY_MATERIALS.md`.
+
+Current reviewer entry point:
+
+```bash
+python -m pip install -r environment/requirements-figure1-exact.txt
+bash reproduce_figure1_revision2.sh
+```
+
+The same route is the Docker entry point and the only active GitHub Actions reproduction workflow.
+
+Daya Bay material appears only in historical auxiliary analyses that are outside the successful [Re] claim. Those historical analyses are retained as provenance and are not inputs to the manuscript-facing Figure-1 workflow.
