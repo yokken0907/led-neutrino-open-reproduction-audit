@@ -498,3 +498,73 @@ def choose_x_major_tick_triplet(strength,pw):
         pools.append(local_x_candidates(
             strength, f*pw, radius=0.050*pw, max_candidates=12
         ))
+    if any(not q for q in pools):
+        raise RuntimeError("insufficient x triplet candidates")
+
+    sm=ndimage.gaussian_filter1d(strength.astype(float),sigma=1.0)
+    best=None
+    for combo in itertools.product(*pools):
+        js=np.array([c[0] for c in combo],float)
+        if not np.all(np.diff(js)>0):
+            continue
+        gaps=np.diff(js)
+        mean_gap=float(np.mean(gaps))
+        if mean_gap<=0:
+            continue
+        gap_cv=float(np.std(gaps)/mean_gap)
+        frac=js/pw
+        frac_rms=float(np.sqrt(np.mean((frac-exps)**2)))
+
+        A=np.vstack([js,np.ones_like(js)]).T
+        a,b=np.linalg.lstsq(A,np.log10(vals),rcond=None)[0]
+        resid=float(np.max(np.abs(a*js+b-np.log10(vals))))
+
+        local_strengths=[]
+        for j in js:
+            lo=max(0,int(j-0.05*pw)); hi=min(len(sm),int(j+0.05*pw)+1)
+            den=max(float(np.max(sm[lo:hi])),1.0)
+            local_strengths.append(float(sm[int(round(j))]/den))
+        strength_norm=float(np.mean(local_strengths))
+
+        # Equal decade spacing and known layout dominate. Darkness only breaks ties.
+        score=8.0*resid + 2.0*gap_cv + 1.0*frac_rms - 0.03*strength_norm
+        rec={
+            "score":score,
+            "indices":js.tolist(),
+            "gap_cv":gap_cv,
+            "expected_fraction_rms":frac_rms,
+            "fit_log10_max_residual":resid,
+            "mean_local_strength_fraction":strength_norm,
+            "inferred_fourth_decade_pixel":float(js[-1]+mean_gap),
+        }
+        if best is None or score<best["score"]:
+            best=rec
+    if best is None:
+        raise RuntimeError("no admissible x major tick triplet")
+    return best
+
+
+def calibrate_axes(page,clip,dpi,dark,sp):
+    L,R,T,B=[sp[k] for k in ("left","right","top","bottom")]
+    pw=R-L; ph=B-T
+
+    # v5.1.3: use only the first three robust raster major-decade ticks
+    # (0.1, 1, 10). Three points are sufficient for a log-axis affine fit.
+    xs=x_tick_strength(dark,sp)
+    xtri=choose_x_major_tick_triplet(xs,pw)
+    xpix=L+np.array(xtri["indices"],float)
+    xvals=np.array([0.1,1.0,10.0],float)
+
+    # y calibration unchanged from v5.1.0/v5.1.1, where it passed.
+    ys=y_tick_strength(dark,sp)
+    ypix=[]
+    for f in Y_EXPECTED_FRAC:
+        idx=f*ph
+        j=choose_local_peak(ys,idx,0.035*ph)
+        ypix.append(T+j)
+    ypix=np.array(ypix,float)
+
+    if len(set(map(lambda q:int(round(q)),xpix)))<3 or len(set(map(int,ypix)))<6:
+        raise RuntimeError(f"duplicate tick picks x={xpix}, y={ypix}")
+
+    Ax=np.vstack([xpix,np.ones_like(xpix)]).T
