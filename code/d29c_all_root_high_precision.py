@@ -37,23 +37,32 @@ def main():
         with (rootdir/fn).open() as f:
             for r in csv.DictReader(f):
                 n=int(r['n'])
-                m_float=float(r['m_lambda'])
-                y_float=m_float/mu
-                y_hp,resid=hp_root(mu,n,y_float)
-                tol=XTOL+RTOL*abs(y_float)
-                dy=float(abs(mp.mpf(y_float)-y_hp))
-                dm=float(abs(mp.mpf(m_float)-y_hp*mp.mpf(str(mu))))
-                rows.append(dict(mu1=mu,n=n,m_lambda=m_float,solver_coordinate_tolerance_abs_y=tol,
-                                 binary64_abs_y_difference=dy,binary64_difference_over_solver_tolerance=dy/tol,
-                                 binary64_abs_m_difference=dm,high_precision_equation_residual_abs=float(resid),
+                m_text=r['m_lambda']
+                m_float=float(m_text)
+                mu_mp=mp.mpf(str(mu))
+                m_bin=mp.mpf(m_float)
+                y_bin=m_bin/mu_mp
+                y_hp,resid=hp_root(mu,n,m_text)
+                tol_mp=mp.mpf(str(XTOL))+mp.mpf(str(RTOL))*abs(y_bin)
+                dy_mp=abs(y_bin-y_hp)
+                dm_mp=abs(m_bin-y_hp*mu_mp)
+                ratio_mp=dy_mp/tol_mp
+                rows.append(dict(mu1=mu,n=n,m_lambda=m_float,solver_coordinate_tolerance_abs_y=float(tol_mp),
+                                 binary64_abs_y_difference=float(dy_mp),binary64_difference_over_solver_tolerance=float(ratio_mp),
+                                 binary64_abs_m_difference=float(dm_mp),high_precision_equation_residual_abs=float(resid),
                                  high_precision_root_y=mp.nstr(y_hp,82)))
-    ratios=[r['binary64_difference_over_solver_tolerance'] for r in rows]
+    ratios=sorted(r['binary64_difference_over_solver_tolerance'] for r in rows)
+    def qlinear(vals,q):
+        pos=(len(vals)-1)*q
+        i=int(math.floor(pos)); j=int(math.ceil(pos))
+        return vals[i] if i==j else vals[i]+(vals[j]-vals[i])*(pos-i)
     result={
       'phase':'D29C_ALL_ROOT_HIGH_PRECISION_DIRECT_VALIDATION',
       'root_count_checked':len(rows),
       'all_within_inherited_solver_tolerance':all(x<=1.0 for x in ratios),
       'max_difference_over_solver_tolerance':max(ratios),
-      'median_difference_over_solver_tolerance':sorted(ratios)[len(ratios)//2],
+      'median_difference_over_solver_tolerance':qlinear(ratios,0.5),
+      'p99_difference_over_solver_tolerance':qlinear(ratios,0.99),
       'max_abs_m_difference':max(r['binary64_abs_m_difference'] for r in rows),
       'max_high_precision_equation_residual_abs':max(r['high_precision_equation_residual_abs'] for r in rows),
       'verdict':'PASS_D29C_ALL_3552_ROOTS_HIGH_PRECISION_DIRECT_VALIDATION' if len(rows)==3552 and all(x<=1.0 for x in ratios) else 'FAIL_D29C_ALL_ROOT_DIRECT_VALIDATION'
