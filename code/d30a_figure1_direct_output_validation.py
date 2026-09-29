@@ -708,3 +708,53 @@ def summarize_anchor(records):
             "robust_detection":robust,
             "contradictory_detection":contradictory,
             "successful_estimates":len(good),
+            "successful_dpis":dpis,
+            "envelope_pass_estimates":len(passes),
+            "theory_m_lambda":tx,"theory_N_lambda":ty,
+            "digitized_median_m_lambda":float(xc),
+            "digitized_median_N_lambda":float(yc),
+            "median_fractional_difference_m":float(abs(xc-tx)/tx),
+            "median_fractional_difference_N":float(abs(yc-ty)/ty),
+            "status":("ROBUST_MATCH" if robust and not contradictory else
+                      "ROBUST_MISMATCH" if contradictory else
+                      "INSUFFICIENT_GRAPHICAL_SUPPORT")
+        }
+    return {
+        "mu1":records[0]["mu1"],"n":records[0]["n"],
+        "robust_detection":False,"contradictory_detection":False,
+        "successful_estimates":0,"successful_dpis":[],
+        "status":"INSUFFICIENT_GRAPHICAL_SUPPORT"
+    }
+
+
+def draw_overlay(rgb,sp,cal,summaries,outfile):
+    img=Image.fromarray(rgb)
+    dr=ImageDraw.Draw(img)
+    for s in summaries:
+        if s["status"]=="INSUFFICIENT_GRAPHICAL_SUPPORT":
+            continue
+        px,py=xy_to_pix(s["theory_m_lambda"],s["theory_N_lambda"],cal)
+        r=8
+        # Black ring = independently calculated point. No color is used for the overlay.
+        dr.ellipse([px-r,py-r,px+r,py+r],outline=(0,0,0),width=3)
+    img.save(outfile)
+
+
+def main():
+    ap=argparse.ArgumentParser()
+    ap.add_argument("--pdf",required=True)
+    ap.add_argument("--outdir",required=True)
+    a=ap.parse_args()
+    pdf=Path(a.pdf).resolve(); out=Path(a.outdir).resolve()
+    out.mkdir(parents=True,exist_ok=True)
+
+    doc=fitz.open(pdf)
+    best,candidates=find_figure1_page(doc)
+    pidx=best["page_index_zero_based"]
+    (out/"FIGURE1_PAGE_LOCATOR.json").write_text(json.dumps({
+        "selected":best,"candidates":candidates,
+        "page_number_one_based":pidx+1
+    },indent=2)+"\n")
+
+    rendered={}
+    cal_fracs=[]
