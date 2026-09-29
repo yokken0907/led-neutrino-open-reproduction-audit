@@ -12,7 +12,11 @@ on:
       - "expected/D30_OCCLUSION_ADJUDICATION.csv"
       - "environment/requirements-figure1-exact.txt"
       - "reproduce_figure1_revision1.sh"
-      - ".github/workflows/reproduce-figure1-revision1.yml"\n      - "README.md"\n      - "FIGURE1_REPLICATION_README.md"\n      - "REPRODUCTION_EVIDENCE.md"\n      - "REVISION1_REPRODUCTION_EVIDENCE.md"
+      - ".github/workflows/reproduce-figure1-revision1.yml"
+      - "README.md"
+      - "FIGURE1_REPLICATION_README.md"
+      - "REPRODUCTION_EVIDENCE.md"
+      - "REVISION1_REPRODUCTION_EVIDENCE.md"
 
 jobs:
   reproduce:
