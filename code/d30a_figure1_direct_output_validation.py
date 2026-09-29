@@ -858,3 +858,29 @@ def main():
         }
     }
     (out/"D30A_RESULT.json").write_text(json.dumps(result,indent=2)+"\n")
+    (out/"D30A_ALL_ESTIMATES.json").write_text(json.dumps(
+        {f"{k[0]}|{k[1]}":v for k,v in all_records.items()},indent=2
+    )+"\n")
+
+    # Highest-DPI overlay.
+    rgb,sp,cal=rendered[max(DPIS)]
+    draw_overlay(rgb,sp,cal,summaries,out/"FIGURE1_PUBLISHED_WITH_REPLICA_ANCHORS_OVERLAY.png")
+
+    print(json.dumps({
+        "verdict":verdict,
+        "coverage":coverage,
+        "axis_cross_dpi_pass":axis_cross_dpi_pass,
+        "axis_max_deviation":[xdev,ydev],
+        "anchors":[
+            {"mu1":s["mu1"],"n":s["n"],"status":s["status"],
+             "n_est":s["successful_estimates"],
+             "dm_frac":s.get("median_fractional_difference_m"),
+             "dN_frac":s.get("median_fractional_difference_N")}
+            for s in summaries
+        ]
+    },indent=2))
+    print("D30A_EXECUTION_COMPLETE")
+
+
+if __name__=="__main__":
+    main()
