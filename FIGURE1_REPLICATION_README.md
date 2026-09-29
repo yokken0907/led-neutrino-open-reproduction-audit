@@ -1,16 +1,24 @@
-# Figure-1 partial replication update
+# Figure-1 partial replication - Revision 1
 
-This update adds the manuscript's current successful replication target: the Brane-Dirac spectrum in Figure 1 of de Giorgi, Pasari & Turner, JHEP 05 (2026) 152.
+The successful ReScience C replication target is the Brane-Dirac spectrum in Figure 1 of de Giorgi, Pasari & Turner, JHEP 05 (2026) 152.
 
-Run locally from the repository root:
+## One-command run
 
 ```bash
 python -m pip install -r environment/requirements-figure1-exact.txt
-bash reproduce_figure1.sh
+bash reproduce_figure1_revision1.sh
 ```
 
-The one-command run intentionally preserves the D29A automatic raw-residual FAIL and then executes the conditioning-aware D29B audit. The manuscript-level bounded result is the D29B verdict:
+This run:
+1. executes D29A and preserves its historical raw-residual automatic FAIL;
+2. executes the D29B conditioning-aware diagnostic;
+3. executes D29C, directly comparing all 3552 plotted binary64 roots with 80-digit roots under the inherited Brent coordinate tolerance;
+4. rechecks the frozen D30 direct-output evidence tables and fixed 4/5-per-mu_1 coverage rule.
 
-`PASS_FIGURE1_COMPUTATIONAL_CORE_INDEPENDENT_REPLICATION_AFTER_CONDITIONING_AUDIT`
+Expected terminal line:
 
-Scope boundary: this is a partial replication of the Figure-1 Brane-Dirac spectrum/eigensystem only. It is not a reproduction of the Figure-5 exclusion likelihood or an experimental constraint replication.
+`FIGURE1_REVISION1_REPRODUCTION_PASS`
+
+D30 boundary: hosted CI rechecks the frozen D30A/D30B evidence tables rather than rerasterizing the publisher PDF. The underlying raster authority runs remain archived separately.
+
+Scope: Figure-1 Brane-Dirac spectrum only. Figure-5 exclusion likelihoods and experimental constraints are not claimed as replicated.
