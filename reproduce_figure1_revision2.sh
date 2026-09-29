@@ -4,6 +4,19 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT="${1:-$ROOT/results/figure1-revision2}"
 mkdir -p "$OUT"
 
+{
+  printf 'platform_system='
+  python -c 'import platform; print(platform.system())'
+  printf 'platform_release='
+  python -c 'import platform; print(platform.release())'
+  printf 'architecture='
+  python -c 'import platform; print(platform.machine())'
+  printf 'python_version='
+  python -c 'import platform; print(platform.python_version())'
+  printf 'python_implementation='
+  python -c 'import platform; print(platform.python_implementation())'
+} > "$OUT/PLATFORM_INFO.txt"
+
 EXPECTED_PDF_SHA="$(head -n1 "$ROOT/expected/FIGURE1_TARGET_PDF_SHA256.txt" | awk '{print $1}')"
 PDF="${FIGURE1_TARGET_PDF:-$OUT/JHEP05_2026_152.pdf}"
 if [[ ! -s "$PDF" ]]; then
