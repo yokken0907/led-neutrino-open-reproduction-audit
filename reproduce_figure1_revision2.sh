@@ -28,9 +28,9 @@ python "$ROOT/code/d29c_all_root_high_precision.py" --roots-dir "$OUT/numerical"
 
 # From-scratch published-output graphical validation.
 mkdir -p "$OUT/graphical_initial" "$OUT/graphical_occlusion" "$OUT/graphical_summary"
-python "$ROOT/code/figure1_graphical_validation.py" --pdf "$PDF" --outdir "$OUT/graphical_initial"
-python "$ROOT/code/figure1_occlusion_validation.py" --run-dir "$OUT/graphical_initial" --outdir "$OUT/graphical_occlusion"
-python "$ROOT/code/summarize_graphical_validation.py" \
+python "$ROOT/code/graphical_validation/figure1_graphical_validation.py" --pdf "$PDF" --outdir "$OUT/graphical_initial"
+python "$ROOT/code/graphical_validation/figure1_occlusion_validation.py" --run-dir "$OUT/graphical_initial" --outdir "$OUT/graphical_occlusion"
+python "$ROOT/code/graphical_validation/summarize_graphical_validation.py" \
   --initial "$OUT/graphical_initial/D30A_RESULT.json" \
   --occlusion "$OUT/graphical_occlusion/D30B_RESULT.json" \
   --outdir "$OUT/graphical_summary"
