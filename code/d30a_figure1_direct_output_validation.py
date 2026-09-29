@@ -377,3 +377,39 @@ def choose_x_major_tick_tuple(strength,pw):
             "fit_log10_max_residual":resid,
             "mean_local_strength_fraction":strength_norm,
         }
+        if best is None or score<best["score"]:
+            best=rec
+    if best is None:
+        raise RuntimeError("no admissible x major tick tuple")
+    return best
+
+
+def _parse_numeric_word(text):
+    t=text.strip()
+    # Tick labels are ordinary decimal numerals in the target PDF. Keep this
+    # conservative so equation numbers and punctuation are not silently coerced.
+    if not t or any(ch not in "0123456789.-+" for ch in t):
+        return None
+    try:
+        return float(t)
+    except ValueError:
+        return None
+
+
+def choose_x_tick_labels_from_pdf(page,clip,dpi,sp):
+    """Use the printed vector-text labels 0.1, 1, 10, 100 for x calibration.
+
+    This is deliberately independent of raster tick darkness. The label centres
+    share the same data-x coordinate as their tick strokes. Ambiguous numeric
+    words elsewhere on the page are rejected by geometric coherence with the
+    detected plot frame and by requiring one horizontal label row.
+    """
+    scale=dpi/72.0
+    L,R,T,B=[sp[k] for k in ("left","right","top","bottom")]
+    pw=R-L
+    bottom_pdf_y=clip.y0 + B/scale
+    left_pdf_x=clip.x0 + L/scale
+    right_pdf_x=clip.x0 + R/scale
+
+    words=page.get_text("words")
+    pools={}
