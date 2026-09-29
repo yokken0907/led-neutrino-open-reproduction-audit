@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - revision2-graphical-reproduction
+      - "revision2-*"
     paths:
       - "code/d29a_figure1_replication.py"
       - "code/d29b_conditioning_validation.py"
