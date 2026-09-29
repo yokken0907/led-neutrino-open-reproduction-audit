@@ -28,6 +28,7 @@ for name,e in entries.items():
     if name.lower().endswith('.pdf'):
         cand.append((name,e.get('links',{}).get('content'),e.get('checksum','')))
 if not cand:
+    print('SCOAP3_SCHEMA_DEBUG='+json.dumps(m,sort_keys=True))
     raise SystemExit('SCOAP3_RECORD_HAS_NO_PDF')
 cand.sort(key=lambda q:(0 if ('pdfa' in q[0].lower() or 'pdf-a' in q[0].lower()) else 1,q[0]))
 name,url,checksum=cand[0]
