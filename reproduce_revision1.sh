@@ -19,6 +19,9 @@ echo "[3/9] Acquire the published article from the SCOAP3 open repository"
 PDF="$OUT/target/JHEP05_2026_152_SCOAP3.pdf"
 META="$OUT/target/SCOAP3_RECORD_107173.json"
 curl -fL --retry 3 --retry-delay 2 "$SCOAP3_API" -o "$META"
+echo "===== SCOAP3 RECORD API ====="
+cat "$META"
+echo
 readarray -t PDF_INFO < <(python - "$META" <<'PY'
 import json,sys
 m=json.load(open(sys.argv[1]))
