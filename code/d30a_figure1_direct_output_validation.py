@@ -758,3 +758,103 @@ def main():
 
     rendered={}
     cal_fracs=[]
+    all_records={}
+    for mu,ns in ANCHORS.items():
+        for n in ns:
+            all_records[(mu,n)]=[]
+
+    for dpi in DPIS:
+        rgb,clip=render_top(doc[pidx],dpi)
+        sp,dark,frame_diag=detect_spines(rgb)
+        cal=calibrate_axes(doc[pidx],clip,dpi,dark,sp)
+        caldoc={"dpi":dpi,"clip_pdf_points":[clip.x0,clip.y0,clip.x1,clip.y1],
+                "image_shape":list(rgb.shape),"spines":sp,"frame_detection":frame_diag,**cal}
+        (out/f"AXIS_CALIBRATION_{dpi}dpi.json").write_text(json.dumps(caldoc,indent=2)+"\n")
+
+        L,R,T,B=[sp[k] for k in ("left","right","top","bottom")]
+        xf=[(x-L)/(R-L) for x in cal["x_tick_pixels"]]
+        yf=[(y-T)/(B-T) for y in cal["y_tick_pixels"]]
+        cal_fracs.append({"dpi":dpi,"x_frac":xf,"y_frac":yf})
+
+        for mu,ns in ANCHORS.items():
+            for n in ns:
+                for sat in SAT_LEVELS:
+                    rec=detect_anchor(rgb,sp,cal,mu,n,sat)
+                    rec["dpi"]=dpi
+                    all_records[(mu,n)].append(rec)
+
+        # diagnostic crop at each DPI
+        diag=Image.fromarray(rgb)
+        diag.save(out/f"FIGURE1_DIAGNOSTIC_{dpi}dpi.png")
+        rendered[dpi]=(rgb,sp,cal)
+
+    # Cross-DPI tick-position QA in normalized plot coordinates.
+    xmat=np.array([r["x_frac"] for r in cal_fracs],float)
+    ymat=np.array([r["y_frac"] for r in cal_fracs],float)
+    xcons=np.median(xmat,axis=0); ycons=np.median(ymat,axis=0)
+    xdev=float(np.max(np.abs(xmat-xcons)))
+    ydev=float(np.max(np.abs(ymat-ycons)))
+    axis_cross_dpi_pass=(xdev<=0.006 and ydev<=0.006)
+    (out/"AXIS_CROSS_DPI_CONSENSUS.json").write_text(json.dumps({
+        "records":cal_fracs,
+        "x_consensus_fractions":xcons.tolist(),
+        "y_consensus_fractions":ycons.tolist(),
+        "max_x_fraction_deviation":xdev,
+        "max_y_fraction_deviation":ydev,
+        "pass":axis_cross_dpi_pass
+    },indent=2)+"\n")
+
+    summaries=[summarize_anchor(all_records[k]) for k in all_records]
+    coverage={}
+    mismatch=[]
+    for mu in ANCHORS:
+        ss=[s for s in summaries if s["mu1"]==mu]
+        coverage[str(mu)]=sum(s["status"]=="ROBUST_MATCH" for s in ss)
+        mismatch.extend(s for s in ss if s["status"]=="ROBUST_MISMATCH")
+
+    adequate_coverage=all(v>=4 for v in coverage.values())
+    if mismatch:
+        verdict="FAIL_DIRECT_TARGET_OUTPUT_DISAGREEMENT"
+    elif not axis_cross_dpi_pass:
+        verdict="HOLD_AXIS_CALIBRATION_CROSS_DPI"
+    elif not adequate_coverage:
+        verdict="HOLD_INSUFFICIENT_PUBLISHED_MARKER_COVERAGE"
+    else:
+        verdict="PASS_DIRECT_FIGURE1_TARGET_OUTPUT_VALIDATION"
+
+    result={
+        "phase":"D30A_FIGURE1_DIRECT_TARGET_OUTPUT_VALIDATION",
+        "version":"5.1.4",
+        "target":{
+            "article":"de Giorgi, Pasari & Turner, JHEP 05 (2026) 152 / arXiv:2512.02101",
+            "figure":"Figure 1 Brane-Dirac spectrum",
+            "pdf_sha256":hashlib.sha256(pdf.read_bytes()).hexdigest(),
+            "page_index_zero_based":pidx,
+            "page_number_one_based":pidx+1,
+        },
+        "pre_specified_anchor_indices":{str(k):list(v) for k,v in ANCHORS.items()},
+        "render_dpi":list(DPIS),
+        "saturation_levels":list(SAT_LEVELS),
+        "axis_cross_dpi":{"max_x_fraction_deviation":xdev,
+                          "max_y_fraction_deviation":ydev,
+                          "pass":axis_cross_dpi_pass},
+        "coverage_robust_match_count_by_mu1":coverage,
+        "adequate_coverage_rule":"at least 4 of 5 pre-specified anchors robustly matched for each mu1",
+        "acceptance_tolerance":"No post-hoc physics tolerance. Match is evaluated against the detected colored graphical footprint expanded only by one raster pixel and measured axis-calibration residual.",
+        "anchors":summaries,
+        "verdict":verdict,
+        "rescience_consequence":(
+            "MAJOR_COMMENT_1_CLOSED_DIRECT_TARGET_OUTPUT_EVIDENCE"
+            if verdict=="PASS_DIRECT_FIGURE1_TARGET_OUTPUT_VALIDATION"
+            else "MAJOR_COMMENT_1_REMAINS_OPEN"
+        ),
+        "claim_control":{
+            "visual_similarity_alone_counts_as_pass":False,
+            "target_author_code_used":False,
+            "figure5_claim_changed":False,
+            "new_physics_claimed":False,
+            "graphical_envelope_is_statistical_uncertainty":False,
+            "graphical_envelope_role":"digitization / rendering support only"
+        }
+    }
+    (out/"D30A_RESULT.json").write_text(json.dumps(result,indent=2)+"\n")
