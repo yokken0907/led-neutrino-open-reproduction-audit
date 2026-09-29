@@ -358,3 +358,22 @@ def choose_x_major_tick_tuple(strength,pw):
         frac=js/pw
         frac_rms=float(np.sqrt(np.mean((frac-X_EXPECTED_FRAC)**2)))
 
+        A=np.vstack([js,np.ones_like(js)]).T
+        a,b=np.linalg.lstsq(A,np.log10(X_TICK_VALUES),rcond=None)[0]
+        resid=float(np.max(np.abs(a*js+b-np.log10(X_TICK_VALUES))))
+
+        strength_norm=float(np.mean([
+            sm[int(round(j))]/max(np.max(sm[max(0,int(j-0.05*pw)):min(len(sm),int(j+0.05*pw)+1)]),1.0)
+            for j in js
+        ]))
+
+        # Geometry dominates; literal stroke strength only breaks close ties.
+        score = 4.0*resid + 1.5*gap_cv + 1.0*frac_rms - 0.03*strength_norm
+        rec={
+            "score":score,
+            "indices":js.tolist(),
+            "gap_cv":gap_cv,
+            "expected_fraction_rms":frac_rms,
+            "fit_log10_max_residual":resid,
+            "mean_local_strength_fraction":strength_norm,
+        }
