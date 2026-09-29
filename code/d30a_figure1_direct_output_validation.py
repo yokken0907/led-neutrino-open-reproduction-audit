@@ -158,3 +158,103 @@ def detect_spines(rgb):
     vraw=[]
     vmin=max(40,int(round(0.30*h)))
     for x in range(w):
+        ln,y0,y1=_longest_dark_run(dark[:,x],gap)
+        if ln>=vmin:
+            vraw.append({"col":int(x),"start":int(y0),"end":int(y1),"length":int(ln)})
+
+    hc=_cluster_line_candidates(hraw,"row",row_merge)
+    vc=_cluster_line_candidates(vraw,"col",col_merge)
+    # Restrict combinatorics to the strongest literal line candidates, not to any
+    # expected location. Stable ties are resolved by coordinate only.
+    hc=sorted(hc,key=lambda r:(-r["length"],r["row"]))[:12]
+    vc=sorted(vc,key=lambda r:(-r["length"],r["col"]))[:12]
+    if len(hc)<2 or len(vc)<2:
+        raise RuntimeError(
+            f"insufficient long-line frame candidates horizontal={len(hc)} vertical={len(vc)}"
+        )
+
+    best=None
+    for ha,hb in itertools.combinations(hc,2):
+        top,bottom=sorted((ha,hb),key=lambda r:r["row"])
+        T=top["row"]; B=bottom["row"]
+        if B-T < 0.20*h:
+            continue
+        for va,vb in itertools.combinations(vc,2):
+            left,right=sorted((va,vb),key=lambda r:r["col"])
+            L=left["col"]; R=right["col"]
+            if R-L < 0.25*w:
+                continue
+
+            # The true frame's horizontal runs terminate at the two vertical edges,
+            # and the vertical runs terminate at the two horizontal edges.
+            end_err=(
+                abs(top["start"]-L)+abs(top["end"]-R)+
+                abs(bottom["start"]-L)+abs(bottom["end"]-R)
+            )/(4.0*w)
+            side_err=(
+                abs(left["start"]-T)+abs(left["end"]-B)+
+                abs(right["start"]-T)+abs(right["end"]-B)
+            )/(4.0*h)
+
+            target_w=R-L+1; target_h=B-T+1
+            span_err=(
+                abs(top["length"]-target_w)+abs(bottom["length"]-target_w)
+            )/(2.0*w) + (
+                abs(left["length"]-target_h)+abs(right["length"]-target_h)
+            )/(2.0*h)
+
+            # Literal darkness at all four corners is independent confirmation that
+            # the four long lines belong to one rectangle.
+            rr=max(1,int(round(max(h,w)/2200.0)))
+            corner=[]
+            for yy,xx in ((T,L),(T,R),(B,L),(B,R)):
+                ya=max(0,yy-rr); yb=min(h,yy+rr+1)
+                xa=max(0,xx-rr); xb=min(w,xx+rr+1)
+                corner.append(float(np.mean(dark[ya:yb,xa:xb])))
+            corner_mean=float(np.mean(corner))
+
+            # Small preference for longer coherent rectangles only after endpoint
+            # agreement; no absolute/expected frame position appears in the score.
+            coverage=0.5*((R-L)/w + (B-T)/h)
+            score=end_err+side_err+0.75*span_err-0.08*corner_mean-0.02*coverage
+            rec={
+                "score":float(score),"left":int(L),"right":int(R),
+                "top":int(T),"bottom":int(B),
+                "endpoint_error":float(end_err),"side_error":float(side_err),
+                "span_error":float(span_err),"corner_dark_fraction":corner_mean,
+                "coverage":float(coverage),
+                "selected_horizontal":[top,bottom],
+                "selected_vertical":[left,right],
+            }
+            if best is None or rec["score"]<best["score"]:
+                best=rec
+
+    if best is None:
+        raise RuntimeError("no coherent rectangular plot frame from long dark lines")
+
+    # Guard only against self-inconsistent line geometry. These are not layout priors.
+    if best["endpoint_error"]>0.04 or best["side_error"]>0.04 or best["span_error"]>0.08:
+        raise RuntimeError(f"long-line frame candidates are not rectangle-consistent: {best}")
+
+    sp={k:best[k] for k in ("left","right","top","bottom")}
+    diag={
+        "method":"longest literal horizontal/vertical dark-line rectangle; no expected frame position",
+        "dark_threshold_mean_rgb_lt":105,
+        "max_bridged_gap_pixels":int(gap),
+        "horizontal_candidate_count":len(hc),
+        "vertical_candidate_count":len(vc),
+        "selected":best,
+        "normalized_frame":{
+            "left":sp["left"]/w,"right":sp["right"]/w,
+            "top":sp["top"]/h,"bottom":sp["bottom"]/h,
+        },
+    }
+    return sp,dark,diag
+
+def x_tick_strength(dark,sp):
+    """Major/minor vertical tick-stroke strength from both bottom and top axes.
+
+    v5.1.0 used a heavily smoothed bottom-only profile. On the published Figure 1
+    raster that can merge neighbouring log-minor ticks and shift a local maximum
+    away from the printed major-decade stroke. v5.1.1 keeps the science gate
+    unchanged and only makes tick identification more literal.
