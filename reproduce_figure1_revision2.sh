@@ -4,7 +4,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT="${1:-$ROOT/results/figure1-revision2}"
 mkdir -p "$OUT"
 
-EXPECTED_PDF_SHA="2850f1c631b07de992cc72dd2b9c8aab80c10e7bccf51a421d90e80373f627c3"
+EXPECTED_PDF_SHA="$(head -n1 "$ROOT/expected/FIGURE1_TARGET_PDF_SHA256.txt" | awk '{print $1}')"
 PDF="${FIGURE1_TARGET_PDF:-$OUT/JHEP05_2026_152.pdf}"
 if [[ ! -s "$PDF" ]]; then
   curl -fL --retry 3 --retry-delay 2 \
