@@ -4,9 +4,12 @@ This directory supports the manuscript-facing Figure-1 replication.
 
 ## Reference platform
 
-Docker provides the most explicit platform pin:
+Docker provides the most explicit reference environment:
 
-- Python: 3.12.3 (`python:3.12.3-slim`)
+- Platform: Linux
+- Architecture: x86_64 for the hosted reference run
+- Reference container: `python:3.12.3-slim`
+- Python: 3.12.3
 - NumPy: 2.5.3
 - SciPy: 1.18.1
 - matplotlib: 3.10.7
@@ -14,7 +17,7 @@ Docker provides the most explicit platform pin:
 - Pillow: 11.3.0
 - PyMuPDF: 1.26.4
 
-The hosted CI uses GitHub's Ubuntu runner with Python 3.12 and installs the same version-pinned Python dependencies from `environment/requirements-figure1-exact.txt`.
+The hosted CI uses GitHub Ubuntu 24.04 with Python 3.12 and installs the same version-pinned Python dependencies from `environment/requirements-figure1-exact.txt`. Each run writes `PLATFORM_INFO.txt` into the archived result artifact so that the tested operating system, kernel release, machine architecture, Python version, and implementation are recorded rather than inferred.
 
 ## Reviewer execution
 
