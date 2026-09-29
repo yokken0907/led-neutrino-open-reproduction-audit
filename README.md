@@ -1,72 +1,63 @@
 # LED-neutrino open reproduction audit
 
-Current manuscript-facing status: **Figure-1 partial replication externally reproduced on GitHub-hosted Ubuntu**
+Current manuscript-facing status: **Figure-1 partial replication with Revision-1 hosted reproducibility**
 
-This repository contains the public reproducibility record for the higher-dimensional neutrino audit. It preserves earlier audit phases for provenance, but the current manuscript interpretation is narrower than some historical phase verdicts.
+This repository is the public reproducibility record for the higher-dimensional neutrino audit. Historical phases are retained for provenance, but the current ReScience C claim is intentionally narrow.
 
 It does **not** claim discovery of LED physics, does **not** claim that the target publication is wrong, and does **not** claim an exact replay of the target experimental likelihood.
 
 ## Current successful partial-replication target
 
-The current ReScience-C manuscript is bounded to the Brane-Dirac eigensystem shown in Figure 1 of:
+The [Re] claim is bounded to the Brane-Dirac eigensystem shown in Figure 1 of:
 
 A. de Giorgi, D. Pasari, J. Turner, *Do neutrinos dream in 5D? Towards a comprehensive extra-dimensional neutrino phenomenology*, JHEP 05 (2026) 152.
 
-The independent Figure-1 calculation:
-- starts from published Eqs. (3.26)-(3.28);
-- uses (m_D=1) and (mu_1={10,1,0.1});
-- independently triangulates the infinite-tower roots against a finite-KK implementation;
+The public Revision-1 workflow:
+- solves the published infinite-tower eigensystem for m_D=1 and mu_1={10,1,0.1};
+- cross-checks nine pre-specified roots with a mathematically distinct finite-KK route;
 - verifies the paper's >99% unitarity truncation criterion;
-- preserves the original D29A raw-residual FAIL in the audit trail;
-- resolves that FAIL with a conditioning-aware D29B backward-error audit.
+- preserves the historical D29A raw-residual automatic FAIL;
+- retains the D29B conditioning diagnostic without describing |F/F'| as a strict backward error;
+- directly re-solves all 3552 plotted roots at 80-digit precision (D29C);
+- rechecks the frozen D30 direct published-output evidence and the fixed per-mu_1 coverage rule.
 
 Run locally:
 
 ```bash
 python -m pip install -r environment/requirements-figure1-exact.txt
-bash reproduce_figure1.sh
+bash reproduce_figure1_revision1.sh
 ```
 
-Expected bounded final verdict:
+Expected terminal result:
 
 ```text
-PASS_FIGURE1_COMPUTATIONAL_CORE_INDEPENDENT_REPLICATION_AFTER_CONDITIONING_AUDIT
+FIGURE1_REVISION1_REPRODUCTION_PASS
 ```
 
-GitHub Actions workflow:
+Workflow:
 
 ```text
-.github/workflows/reproduce-figure1.yml
+.github/workflows/reproduce-figure1-revision1.yml
 ```
 
-Reviewer-facing evidence index:
+Reviewer-facing detail:
+- `REVISION1_REPRODUCTION_EVIDENCE.md`
+- `REPRODUCTION_EVIDENCE.md`
 
-```text
-REPRODUCTION_EVIDENCE.md
-```
+## D30 boundary
+
+The hosted D30C step rechecks frozen machine-readable D30A/D30B evidence tables. It does **not** rerasterize the publisher PDF. The underlying multi-resolution raster authority runs, overlays, and marker-occlusion adjudication are preserved in the manuscript audit archive. The manuscript reports 12 direct graphical matches, two separately adjudicated occlusion cases, and one unresolved graphical anchor; it does not claim 15/15 direct graphical recovery.
 
 ## Important supersession notice
 
-The older D27 reproducibility pipeline remains in this repository as historical evidence of what the project computed at that stage. Later reviewer-driven audits changed the manuscript-level interpretation.
+Older D25-D27 outputs remain for audit provenance. Later reviewer-driven audits withdrew:
+- the old 39-versus-17 threshold-crossing attribution to KK truncation;
+- the old binary Daya Bay calibration-failure interpretation;
+- use of project-defined calibration cutoffs as current scientific pass/fail criteria.
 
-The following historical outputs must **not** be read as current scientific conclusions:
-
-- the old D25G comparison of 39 threshold crossings at N=192 versus 17 at N=384;
-- the old attribution of that difference to KK-truncation dependence;
-- the old D26C1 binary verdict `FAIL_CLEAN_PUBLIC_DAYABAY_STANDARD3NU_CALIBRATION`;
-- the earlier use of project-defined calibration cutoffs as scientific PASS/FAIL criteria.
-
-Later matched-grid and public-fit controls showed:
-- threshold-crossing count was not converged under R-grid refinement, so the old 39-versus-17 KK interpretation was withdrawn;
-- the public Daya Bay covariance full fit itself is reproducible in the frozen environment;
-- the project's fixed-coordinate D26 profiling route was not equivalent to that public reference fit;
-- Figure-5 pointwise exclusion replication was not established because the open comparator had unresolved local threshold topology.
-
-Those historical files are retained for audit provenance, not deleted or rewritten.
+The public Daya Bay covariance full fit is reproducible in the frozen environment, while the earlier fixed-coordinate project profile was non-equivalent. Figure-5 pointwise exclusion replication remains unresolved in the tested open comparator.
 
 ## Scope boundary
-
-The current successful replicated subset is **Figure 1 / Brane-Dirac spectrum only**.
 
 Not claimed:
 - Figure-5 exclusion-contour replication;
@@ -75,24 +66,10 @@ Not claimed:
 - a new LED signal;
 - an error in the original JHEP article.
 
-## Historical D27 external-CI record
+## Historical workflow
 
-The earlier D27B/D27C repository-hardening workflow remains available through:
-
-```bash
-bash reproduce_all.sh
-```
-
-and
-
-```text
-.github/workflows/reproduce.yml
-```
-
-Those workflows reproduce the frozen historical project outputs. They do not, by themselves, define the current manuscript's scientific interpretation.
+`reproduce_all.sh` and `.github/workflows/reproduce.yml` preserve the older D27 reproducibility record; they do not define the current manuscript claim.
 
 ## Licensing
 
-Original code/documentation: MIT.
-
-Third-party data/code retain their upstream licenses. See `licenses/THIRD_PARTY_MATERIALS.md`.
+Original code/documentation: MIT. Third-party data/code retain their upstream licenses; see `licenses/THIRD_PARTY_MATERIALS.md`.
