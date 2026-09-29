@@ -1,0 +1,82 @@
+name: Reproduce ReScience Revision-1 evidence
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "code/d29a_figure1_replication.py"
+      - "code/d29b_conditioning_validation.py"
+      - "code/d29c_all_root_80digit_direct_validation.py"
+      - "code/d30a_figure1_direct_output_validation.py"
+      - "code/d30b_occlusion_adjudication.py"
+      - "tests/test_d30a_static.py"
+      - "tests/test_d30b_static.py"
+      - "environment/requirements-revision1-exact.txt"
+      - "reproduce_figure1.sh"
+      - "reproduce_revision1.sh"
+      - ".github/workflows/reproduce-revision1.yml"
+  push:
+    branches: [main]
+    paths:
+      - "code/d29a_figure1_replication.py"
+      - "code/d29b_conditioning_validation.py"
+      - "code/d29c_all_root_80digit_direct_validation.py"
+      - "code/d30a_figure1_direct_output_validation.py"
+      - "code/d30b_occlusion_adjudication.py"
+      - "tests/test_d30a_static.py"
+      - "tests/test_d30b_static.py"
+      - "environment/requirements-revision1-exact.txt"
+      - "reproduce_figure1.sh"
+      - "reproduce_revision1.sh"
+      - ".github/workflows/reproduce-revision1.yml"
+
+jobs:
+  revision1:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: environment/requirements-revision1-exact.txt
+
+      - name: Install version-pinned Revision-1 environment
+        run: python -m pip install -r environment/requirements-revision1-exact.txt
+
+      - name: Run complete bounded Revision-1 reproduction
+        run: bash reproduce_revision1.sh
+
+      - name: Independently verify final bounded result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('results/revision1/REVISION1_RESULT.json')
+          r=json.loads(p.read_text())
+          assert r['bounded_verdict']=='PASS_RESCIENCE_REVISION1_FIGURE1_PARTIAL_REPLICATION_GATES'
+          assert r['D29C_verdict']=='PASS_D29C_ALL_3552_ROOTS_HIGH_PRECISION_DIRECT_VALIDATION'
+          assert r['D30A_frozen_machine_verdict']=='FAIL_DIRECT_TARGET_OUTPUT_DISAGREEMENT'
+          assert r['D30B_verdict']=='PASS_D30B_OCCLUSION_ARTIFACT_CONFIRMED'
+          assert r['combined_supported_anchor_count_by_mu1']=={'10.0':5,'1.0':5,'0.1':4}
+          assert r['remaining_insufficient_graphical_support']==['0.1|20']
+          assert r['claim_boundary']['figure5_replication_claimed'] is False
+          print('REVISION1_FINAL_GATE_PASS')
+          PY
+
+      - name: Record runner environment
+        run: |
+          {
+            echo "runner_os=${{ runner.os }}"
+            echo "runner_arch=${{ runner.arch }}"
+            python --version
+            python -m pip freeze
+          } > results/revision1/GITHUB_ACTIONS_ENVIRONMENT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rescience-revision1-results
+          path: results/revision1
+          if-no-files-found: error
