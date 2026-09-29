@@ -78,3 +78,83 @@ def find_figure1_page(doc):
     return cand[0],cand
 
 
+def render_top(page,dpi):
+    W,H=page.rect.width,page.rect.height
+    clip=fitz.Rect(0.02*W,0.00*H,0.98*W,0.36*H)
+    s=dpi/72.0
+    pix=page.get_pixmap(matrix=fitz.Matrix(s,s),clip=clip,alpha=False)
+    arr=np.frombuffer(pix.samples,dtype=np.uint8).reshape(pix.height,pix.width,pix.n)[...,:3]
+    return arr.copy(),clip
+
+
+def _longest_dark_run(bits, max_gap):
+    """Return (span_length, start, end) for the longest near-contiguous dark run.
+
+    max_gap bridges only tiny antialiasing/raster gaps. It is deliberately far too
+    small to join ordinary words or unrelated graphical objects into a frame edge.
+    """
+    pos=np.flatnonzero(bits)
+    if pos.size==0:
+        return 0,None,None
+    cut=np.flatnonzero(np.diff(pos)>max_gap+1)
+    starts=np.r_[0,cut+1]
+    ends=np.r_[cut,pos.size-1]
+    spans=pos[ends]-pos[starts]+1
+    k=int(np.argmax(spans))
+    return int(spans[k]),int(pos[starts[k]]),int(pos[ends[k]])
+
+
+def _cluster_line_candidates(records,coord_key,merge_radius):
+    """Merge adjacent raster rows/columns belonging to one physical dark line."""
+    if not records:
+        return []
+    records=sorted(records,key=lambda r:r[coord_key])
+    groups=[]; cur=[records[0]]
+    for r in records[1:]:
+        if r[coord_key]-cur[-1][coord_key] <= merge_radius:
+            cur.append(r)
+        else:
+            groups.append(cur); cur=[r]
+    groups.append(cur)
+    out=[]
+    for g in groups:
+        # Use the member with the longest literal run; ties prefer the group centre.
+        centre=float(np.median([q[coord_key] for q in g]))
+        best=max(g,key=lambda q:(q["length"],-abs(q[coord_key]-centre)))
+        rec=dict(best)
+        rec["band_min"]=int(min(q[coord_key] for q in g))
+        rec["band_max"]=int(max(q[coord_key] for q in g))
+        rec["band_members"]=len(g)
+        out.append(rec)
+    return out
+
+
+def detect_spines(rgb):
+    """Detect the Figure-1 rectangular plot frame from literal long dark lines.
+
+    v5.1.4 deliberately removes the v5.1.3 expected-position frame prior. Candidate
+    edges are generated only from the longest near-contiguous horizontal/vertical
+    dark runs in the rendered image. The selected four edges must form one coherent
+    rectangle by endpoint agreement. No scientific anchor or acceptance threshold is
+    involved in this technical frame-localisation step.
+    """
+    h,w,_=rgb.shape
+    gray=np.mean(rgb,axis=2)
+    dark=gray<105
+
+    # Scale the permitted raster gap with DPI/image size, but keep it tiny relative
+    # to typography. This bridges antialiasing breaks without joining text words.
+    gap=max(1,int(round(max(h,w)/1800.0)))
+    row_merge=max(2,int(round(h/700.0)))
+    col_merge=max(2,int(round(w/700.0)))
+
+    hraw=[]
+    hmin=max(40,int(round(0.35*w)))
+    for y in range(h):
+        ln,x0,x1=_longest_dark_run(dark[y,:],gap)
+        if ln>=hmin:
+            hraw.append({"row":int(y),"start":int(x0),"end":int(x1),"length":int(ln)})
+
+    vraw=[]
+    vmin=max(40,int(round(0.30*h)))
+    for x in range(w):
