@@ -240,13 +240,21 @@ def main():
       'source_d30a_verdict':d30a['verdict'],
       'source_d30a_mismatches':mismatches,
       'fixed_reference_anchor':'10.0|0',
-      'fixed_positive_controls':['10.0|1','10.0|2'],
+      'fixed_registration_controls':['10.0|1','10.0|2'],
+      'fixed_nonoccluded_registration_control':'10.0|1',
+      'fixed_positive_occlusion_control':'10.0|2',
       'fixed_targets':['10.0|5','10.0|10'],
       'control_max_residual_400dpi_equiv_pixels':cmax,
       'control_guard_max_allowed_400dpi_equiv_pixels':CONTROL_GUARD_400PX,
       'control_guard_pass':control_guard_pass,
       'target_registration_threshold_400dpi_equiv_pixels':threshold,
-      'threshold_construction':'positive-control maximum + exactly 1.0 400-dpi pixel; targets excluded',
+      'threshold_construction':'registration-control maximum + exactly 1.0 400-dpi pixel; targets excluded',
+      'occlusion_signature_definition':{
+        'max_visible_to_reference_width_ratio':SHRINK_MAX_RATIO,
+        'max_visible_to_reference_height_ratio':SHRINK_MAX_RATIO,
+        'min_blue_or_green_fraction_in_predicted_full_bbox':OCCLUDER_MIN_FRAC,
+        'visible_bbox_containment_allowance':'one scaled raster pixel'
+      },
       'summary_by_n':summaries,
       'verdict':verdict,
       'scientific_interpretation':(

@@ -16,11 +16,13 @@ on:
       - "FIGURE1_REPLICATION_README.md"
       - "REPRODUCTION_EVIDENCE.md"
       - "docs/FIGURE1_GRAPHICAL_VALIDATION.md"
+      - "code/README.md"
+      - "licenses/THIRD_PARTY_MATERIALS.md"
       - ".github/workflows/reproduce-figure1-revision2.yml"
 
 jobs:
   reproduce:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
