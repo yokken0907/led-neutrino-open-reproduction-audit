@@ -28,7 +28,9 @@ Control roles are deliberately distinguished:
 
 The registration threshold is target-independent. The maximum registration residual across n=1 and n=2 is 1.262472543657173 400-dpi-equivalent pixels. Adding exactly one 400-dpi-equivalent raster pixel gives the target threshold 2.262472543657173 pixels. The n=5 and n=10 target residuals are not used to construct the threshold.
 
-Both targets pass registration and the independent occlusion signature in all 9/9 dpi/saturation estimates. The original initial-detector result is retained unchanged; the second test explains those two apparent contradictions as marker-overplot/occlusion cases.
+The occlusion signature requires all four of the following conditions: the visible purple component is at most 80% of the reference width, at most 80% of the reference height, blue/green pixels occupy at least 10% of the predicted full-marker box, and the visible purple bounding box remains contained within the reference-derived full-marker box with a one-scaled-pixel allowance.
+
+Both targets pass registration and this independently specified occlusion signature in all 9/9 dpi/saturation estimates. The original initial-detector result is retained unchanged; the second test explains those two apparent contradictions as marker-overplot/occlusion cases.
 
 ## Combined manuscript-facing result
 
