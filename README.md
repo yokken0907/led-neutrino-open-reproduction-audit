@@ -24,7 +24,7 @@ FIGURE1_REVISION2_END_TO_END_REPRODUCTION_PASS
 The workflow performs four layers:
 
 1. solve the published infinite-tower eigensystem and cross-check nine pre-specified roots with a mathematically distinct finite-KK calculation;
-2. validate all 3552 plotted binary64 roots by direct 80-digit re-solution;
+2. validate all 3552 binary64 roots generated over the Figure-1 plotting range by direct 80-digit re-solution;
 3. obtain the exact version-of-record PDF identified by SHA-256
    `2850f1c631b07de992cc72dd2b9c8aab80c10e7bccf51a421d90e80373f627c3`,
    rasterize Figure 1 at 400/600/800 dpi, calibrate its axes, detect the colored marker footprints, and regenerate the 15-point graphical-validation table and overlay;
@@ -81,6 +81,8 @@ Not claimed:
 - an error in the original JHEP article.
 
 The older `reproduce_all.sh` and D25--D27 material are retained only as historical provenance and do not define the manuscript-facing reproduction route.
+
+Documents containing withdrawn pre-revision interpretations have been moved under `provenance/superseded/` and carry an explicit superseded notice. The current claim is summarized in `paper/CURRENT_CLAIM.md`; the current executable scope is stated in `REPRODUCIBILITY_STATEMENT.md`.
 
 ## Licensing
 
