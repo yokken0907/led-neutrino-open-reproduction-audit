@@ -11,7 +11,7 @@ on:
       - "code/d29b_conditioning_validation.py"
       - "code/d29c_all_root_high_precision.py"
       - "code/run_graphical_validation_revision2.py"
-      - "provenance/graphical_core_source.zip"
+      - "code/graphical_validation/initial_graphical_footprint.py"\n      - "code/graphical_validation/occlusion_assessment.py"
       - "environment/requirements-figure1-exact.txt"
       - "reproduce_figure1_revision2.sh"
       - "Dockerfile"
