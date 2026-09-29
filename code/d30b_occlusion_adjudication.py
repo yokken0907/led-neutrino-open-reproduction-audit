@@ -118,3 +118,103 @@ def main():
     run=Path(a.run_dir).resolve(); srczip=Path(a.source_zip).resolve(); out=Path(a.outdir).resolve()
     out.mkdir(parents=True,exist_ok=True)
 
+    srcsha=sha256_file(srczip)
+    if srcsha!=EXPECTED_RUN_SHA:
+        raise SystemExit(f'SOURCE_RUN_SHA_MISMATCH expected={EXPECTED_RUN_SHA} actual={srcsha}')
+
+    d30a=json.loads((run/'D30A_RESULT.json').read_text())
+    if d30a.get('verdict')!='FAIL_DIRECT_TARGET_OUTPUT_DISAGREEMENT':
+        raise SystemExit('SOURCE_D30A_VERDICT_NOT_EXPECTED')
+    mismatches=sorted(f"{x['mu1']}|{x['n']}" for x in d30a['anchors'] if x['status']=='ROBUST_MISMATCH')
+    if mismatches!=['10.0|10','10.0|5']:
+        raise SystemExit(f'SOURCE_D30A_MISMATCH_SET_NOT_EXPECTED {mismatches}')
+
+    measurements=[]
+    diagnostics={}
+    for dpi in DPIS:
+        pil=Image.open(run/f'FIGURE1_DIAGNOSTIC_{dpi}dpi.png').convert('RGB')
+        rgb=np.asarray(pil)
+        hsv=np.asarray(pil.convert('HSV'))
+        caldoc=json.loads((run/f'AXIS_CALIBRATION_{dpi}dpi.json').read_text())
+        sp=caldoc['spines']; cal=caldoc
+        blue=hue_mask_from_hsv(hsv,BLUE,0.25)
+        green=hue_mask_from_hsv(hsv,GREEN,0.25)
+        nonpurple_occ=blue|green
+        by_sat={}
+        for sat in SATS:
+            recs={n:detect_purple_component(rgb,hsv,sp,cal,n,sat) for n in (REF_N,*CONTROL_NS,*TARGET_NS)}
+            ref=recs[REF_N]
+            if ref['status']!='DETECTED':
+                raise SystemExit(f'REFERENCE_NOT_DETECTED dpi={dpi} sat={sat}')
+            rpx,rpy=ref['predicted_pixel']; rl,rt,rr,rb=ref['bbox']
+            offsets={'left':rl-rpx,'top':rt-rpy,'right':rr-rpx,'bottom':rb-rpy}
+            for n in (*CONTROL_NS,*TARGET_NS):
+                z=recs[n]
+                z['dpi']=dpi
+                if z['status']!='DETECTED':
+                    measurements.append(z); continue
+                l,t,r,b=z['bbox']; px,py=z['predicted_pixel']
+                recx=r-offsets['right']; recy=t-offsets['top']
+                dx=recx-px; dy=recy-py
+                resid_raw=math.hypot(dx,dy); resid400=resid_raw*400.0/dpi
+                full=[px+offsets['left'],py+offsets['top'],px+offsets['right'],py+offsets['bottom']]
+                tol_raw=1.0*dpi/400.0
+                subset=(l>=full[0]-tol_raw and t>=full[1]-tol_raw and r<=full[2]+tol_raw and b<=full[3]+tol_raw)
+                x0=max(0,int(math.floor(full[0]))); y0=max(0,int(math.floor(full[1])))
+                x1=min(rgb.shape[1]-1,int(math.ceil(full[2]))); y1=min(rgb.shape[0]-1,int(math.ceil(full[3])))
+                occ=float(nonpurple_occ[y0:y1+1,x0:x1+1].mean()) if x1>=x0 and y1>=y0 else 0.0
+                z.update({
+                    'reference_bbox':ref['bbox'],
+                    'reference_edge_offsets_pixels':offsets,
+                    'reconstructed_center_pixel':[float(recx),float(recy)],
+                    'edge_residual_pixel':[float(dx),float(dy)],
+                    'edge_residual_raw_pixels':float(resid_raw),
+                    'edge_residual_400dpi_equiv_pixels':float(resid400),
+                    'predicted_full_bbox':[float(q) for q in full],
+                    'visible_to_reference_width_ratio':float(z['width_pixels']/ref['width_pixels']),
+                    'visible_to_reference_height_ratio':float(z['height_pixels']/ref['height_pixels']),
+                    'nonpurple_blue_or_green_fraction_in_full_bbox':occ,
+                    'visible_bbox_subset_coherent_1px_scaled':bool(subset),
+                })
+                measurements.append(z)
+            by_sat[str(sat)]={'reference':ref,'records':recs}
+        if dpi==800:
+            diagnostics[dpi]=(np.array(rgb,copy=True),caldoc)
+        del hsv, blue, green, nonpurple_occ, rgb, pil
+
+    control=[r for r in measurements if r.get('n') in CONTROL_NS and r.get('status')=='DETECTED']
+    if len(control)<ROBUST_MIN_EST:
+        cmax=float('inf')
+    else:
+        cmax=max(r['edge_residual_400dpi_equiv_pixels'] for r in control)
+    control_guard_pass=math.isfinite(cmax) and cmax<=CONTROL_GUARD_400PX
+    threshold=(cmax+1.0) if control_guard_pass else None
+
+    for r in measurements:
+        if r.get('status')!='DETECTED': continue
+        r['registration_threshold_400dpi_equiv_pixels']=threshold
+        r['registration_pass']=bool(control_guard_pass and r['edge_residual_400dpi_equiv_pixels']<=threshold)
+        r['occlusion_signature_pass']=bool(
+            r['visible_to_reference_width_ratio']<=SHRINK_MAX_RATIO and
+            r['visible_to_reference_height_ratio']<=SHRINK_MAX_RATIO and
+            r['nonpurple_blue_or_green_fraction_in_full_bbox']>=OCCLUDER_MIN_FRAC and
+            r['visible_bbox_subset_coherent_1px_scaled']
+        )
+
+    summaries={}
+    for n in (*CONTROL_NS,*TARGET_NS):
+        rr=[r for r in measurements if r.get('n')==n]
+        summaries[str(n)]={
+          'n':n,
+          'detected_estimates':sum(r.get('status')=='DETECTED' for r in rr),
+          'registration_pass_estimates':sum(bool(r.get('registration_pass')) for r in rr),
+          'registration_pass_dpis':sorted({r['dpi'] for r in rr if r.get('registration_pass')}),
+          'robust_registration_pass':robust_pass(rr),
+          'robust_registration_fail':robust_fail(rr),
+          'max_residual_400dpi_equiv_pixels':max([r['edge_residual_400dpi_equiv_pixels'] for r in rr if r.get('status')=='DETECTED'],default=None),
+          'occlusion_signature_estimates':sum(bool(r.get('occlusion_signature_pass')) for r in rr),
+          'occlusion_signature_dpis':sorted({r['dpi'] for r in rr if r.get('occlusion_signature_pass')}),
+          'robust_occlusion_signature':(
+              sum(bool(r.get('occlusion_signature_pass')) for r in rr)>=ROBUST_MIN_EST and
+              len({r['dpi'] for r in rr if r.get('occlusion_signature_pass')})>=2
+          )
