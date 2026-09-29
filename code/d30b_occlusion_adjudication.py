@@ -114,13 +114,14 @@ def main():
     ap.add_argument('--run-dir',required=True)
     ap.add_argument('--source-zip',required=True)
     ap.add_argument('--outdir',required=True)
+    ap.add_argument('--expected-source-sha',default=EXPECTED_RUN_SHA)
     a=ap.parse_args()
     run=Path(a.run_dir).resolve(); srczip=Path(a.source_zip).resolve(); out=Path(a.outdir).resolve()
     out.mkdir(parents=True,exist_ok=True)
 
     srcsha=sha256_file(srczip)
-    if srcsha!=EXPECTED_RUN_SHA:
-        raise SystemExit(f'SOURCE_RUN_SHA_MISMATCH expected={EXPECTED_RUN_SHA} actual={srcsha}')
+    if srcsha!=a.expected_source_sha:
+        raise SystemExit(f'SOURCE_RUN_SHA_MISMATCH expected={a.expected_source_sha} actual={srcsha}')
 
     d30a=json.loads((run/'D30A_RESULT.json').read_text())
     if d30a.get('verdict')!='FAIL_DIRECT_TARGET_OUTPUT_DISAGREEMENT':
