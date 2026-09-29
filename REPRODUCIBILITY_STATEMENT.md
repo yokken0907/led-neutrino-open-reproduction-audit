@@ -1,22 +1,33 @@
 # Reproducibility statement
 
-The repository is designed so that a third party can run:
+The current ReScience Revision-1 claim is intentionally bounded to the Figure-1 Brane-Dirac spectrum subset.
+
+A third party can install the version-pinned environment and run:
 
 ```bash
-bash reproduce_all.sh
+python -m pip install -r environment/requirements-revision1-exact.txt
+bash reproduce_revision1.sh
 ```
 
 The runner:
-1. obtains public third-party inputs from pinned authoritative locations;
-2. verifies their SHA-256 hashes;
-3. creates two clean Python 3.12 environments;
-4. installs frozen dependencies;
-5. reruns the D26C1 public standard-3ν calibration and D25G-R2 KK-truncation topology test;
-6. compares the outputs to frozen expected results using predeclared tolerances and exact categorical checks;
-7. records manifests and SHA-256 inventories.
+1. reruns the public D29A/D29B Figure-1 numerical-core workflow;
+2. directly re-solves all 3552 plotted roots at 80-digit precision in D29C;
+3. downloads the version-of-record target article from the publisher and requires the fixed SHA-256 before any graphical analysis;
+4. runs the D30A direct published-output comparison at 400/600/800 dpi;
+5. preserves the frozen D30A automatic mismatch verdict rather than rewriting it;
+6. runs the separately frozen D30B occlusion adjudication for only the two pre-identified contradictory anchors;
+7. applies a final bounded gate requiring the combined Figure-1 evidence while leaving Figure 5 outside the successful-replication claim.
 
-A GitHub Actions workflow is included to make the same test executable on an independent
-GitHub-hosted Ubuntu runner after publication of the repository.
+The expected terminal marker is:
 
-The expected scientific outcome includes a D26C1 scientific FAIL. That FAIL is itself a
-reproduced result and must not be treated as an execution failure.
+`REVISION1_REPRODUCTION_CI_PASS`
+
+The workflow is also exercised by:
+
+`.github/workflows/reproduce-revision1.yml`
+
+GitHub-hosted CI is supporting evidence, not a substitute for the ReScience reviewer rerunning the code.
+
+## Historical workflow
+
+`bash reproduce_all.sh` and `.github/workflows/reproduce.yml` remain as the earlier D27 historical reproducibility record. They do not define the current manuscript interpretation.
