@@ -1,10 +1,12 @@
 cff-version: 1.2.0
-message: "If you use this software or reproducibility package, please cite the archived release."
-title: "Open computational audit of large-extra-dimension neutrino constraints"
+message: "If you use this reproducibility package, please cite the accompanying ReScience C manuscript and this repository."
+title: "[Re] Do neutrinos dream in 5D? Partial replication of the Brane-Dirac spectrum and limits of open exclusion-contour reconstruction"
 type: software
 authors:
   - family-names: "Yoshimura"
     given-names: "Keiji"
-date-released: 2026-09-27
+    orcid: "https://orcid.org/0009-0007-6631-1038"
+date-released: 2026-09-29
 license: MIT
-version: "4.3.0"
+version: "1.4.0"
+repository-code: "https://github.com/yokken0907/led-neutrino-open-reproduction-audit"
