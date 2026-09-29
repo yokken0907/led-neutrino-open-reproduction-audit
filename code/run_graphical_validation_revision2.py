@@ -141,12 +141,8 @@ def main():
     ap.add_argument("--target-pdf",default=os.environ.get("TARGET_PDF"))
     a=ap.parse_args()
     root=Path(a.repo_root).resolve(); out=Path(a.outdir).resolve(); out.mkdir(parents=True,exist_ok=True)
-    archive=root/"provenance/graphical_core_source.zip"
-    src=out/"source"; src.mkdir(exist_ok=True)
-    with zipfile.ZipFile(archive) as z:
-        z.extractall(src)
-    initial=src/"d30a_figure1_direct_output_validation.py"
-    occlusion=src/"d30b_occlusion_adjudication.py"
+    initial=root/"code/graphical_validation/initial_graphical_footprint.py"
+    occlusion=root/"code/graphical_validation/occlusion_assessment.py"
     if sha256(initial)!=D30A_PY_SHA or sha256(occlusion)!=D30B_PY_SHA:
         raise SystemExit("GRAPHICAL_CORE_SOURCE_FILE_SHA_MISMATCH")
     pdf=out/"target_version_of_record.pdf"; acquire_pdf(pdf,a.target_pdf)
