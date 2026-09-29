@@ -413,3 +413,44 @@ def choose_x_tick_labels_from_pdf(page,clip,dpi,sp):
 
     words=page.get_text("words")
     pools={}
+    for val in X_TICK_VALUES:
+        cand=[]
+        for w in words:
+            x0,y0,x1,y1,txt=w[:5]
+            num=_parse_numeric_word(txt)
+            if num is None or abs(num-float(val))>1e-12:
+                continue
+            cx=0.5*(x0+x1); cy=0.5*(y0+y1)
+            # Figure is within the rendered top clip. X tick labels must lie
+            # horizontally within the plot frame and just below its bottom.
+            if not (left_pdf_x-0.04*page.rect.width <= cx <=
+                    right_pdf_x+0.04*page.rect.width):
+                continue
+            dy=cy-bottom_pdf_y
+            if not (-0.005*page.rect.height <= dy <= 0.060*page.rect.height):
+                continue
+            cand.append({
+                "text":txt,"value":float(val),
+                "center_pdf":[float(cx),float(cy)],
+                "bbox_pdf":[float(x0),float(y0),float(x1),float(y1)],
+                "dy_from_bottom_pdf":float(dy),
+            })
+        if not cand:
+            raise RuntimeError(f"no PDF-text candidate for x tick {val}")
+        pools[float(val)]=cand
+
+    import itertools as _it
+    best=None
+    ordered_vals=[float(v) for v in X_TICK_VALUES]
+    for combo in _it.product(*(pools[v] for v in ordered_vals)):
+        xs=np.array([q["center_pdf"][0] for q in combo],float)
+        ys=np.array([q["center_pdf"][1] for q in combo],float)
+        if not np.all(np.diff(xs)>0):
+            continue
+
+        # Convert to raster coordinates for comparison with plot geometry.
+        xpix=(xs-clip.x0)*scale
+        frac=(xpix-L)/pw
+        if np.any(frac < -0.03) or np.any(frac > 1.03):
+            continue
+
