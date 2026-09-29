@@ -218,3 +218,86 @@ def main():
               sum(bool(r.get('occlusion_signature_pass')) for r in rr)>=ROBUST_MIN_EST and
               len({r['dpi'] for r in rr if r.get('occlusion_signature_pass')})>=2
           )
+        }
+
+    controls_ok=control_guard_pass and all(summaries[str(n)]['robust_registration_pass'] for n in CONTROL_NS)
+    target_pass=[summaries[str(n)]['robust_registration_pass'] for n in TARGET_NS]
+    target_fail=[summaries[str(n)]['robust_registration_fail'] for n in TARGET_NS]
+    target_occ=[summaries[str(n)]['robust_occlusion_signature'] for n in TARGET_NS]
+    if not controls_ok:
+        verdict='HOLD_D30B_METHOD_OR_OCCLUSION_SUPPORT'
+    elif all(target_pass) and all(target_occ):
+        verdict='PASS_D30B_OCCLUSION_ARTIFACT_CONFIRMED'
+    elif any(target_fail):
+        verdict='FAIL_D30B_D30A_CONTRADICTION_RETAINED'
+    else:
+        verdict='HOLD_D30B_METHOD_OR_OCCLUSION_SUPPORT'
+
+    result={
+      'phase':'D30B_OCCLUSION_AWARE_MARKER_ADJUDICATION',
+      'version':'5.2.1',
+      'source_run_zip_sha256':srcsha,
+      'source_target_pdf_sha256':d30a.get('target',{}).get('pdf_sha256'),
+      'source_d30a_verdict':d30a['verdict'],
+      'source_d30a_mismatches':mismatches,
+      'fixed_reference_anchor':'10.0|0',
+      'fixed_positive_controls':['10.0|1','10.0|2'],
+      'fixed_targets':['10.0|5','10.0|10'],
+      'control_max_residual_400dpi_equiv_pixels':cmax,
+      'control_guard_max_allowed_400dpi_equiv_pixels':CONTROL_GUARD_400PX,
+      'control_guard_pass':control_guard_pass,
+      'target_registration_threshold_400dpi_equiv_pixels':threshold,
+      'threshold_construction':'positive-control maximum + exactly 1.0 400-dpi pixel; targets excluded',
+      'summary_by_n':summaries,
+      'verdict':verdict,
+      'scientific_interpretation':(
+        'The two D30A v5.1.4 contradictory anchors are supported as overplot/occlusion artifacts, not direct Figure-1 disagreements.'
+        if verdict=='PASS_D30B_OCCLUSION_ARTIFACT_CONFIRMED' else
+        'D30B does not establish that both D30A contradictions are occlusion artifacts.'
+      ),
+      'claim_boundary':{
+        'original_d30a_result_mutated':False,
+        'retroactive_d30a_pass_claimed':False,
+        'target_author_code_reproduced':False,
+        'new_physics_claimed':False,
+        'role':'technical adjudication of deterministic published-figure marker overlap'
+      }
+    }
+    (out/'D30B_RESULT.json').write_text(json.dumps(result,indent=2)+'\n')
+    (out/'D30B_ALL_ESTIMATES.json').write_text(json.dumps(measurements,indent=2)+'\n')
+
+    # 800-dpi diagnostics: raw crop + theoretical full-marker rectangle + visible bbox.
+    dpi=800; rgb,_=diagnostics[dpi]
+    for n in (0,1,2,5,10):
+        if n==0:
+            # obtain n0 from fresh detection at middle saturation for display
+            caldoc=json.loads((run/f'AXIS_CALIBRATION_{dpi}dpi.json').read_text()); sp=caldoc['spines']; hsv=np.asarray(Image.fromarray(rgb).convert('HSV'))
+            rr=detect_purple_component(rgb,hsv,sp,caldoc,0,0.35)
+            px,py=rr['predicted_pixel']; l,t,r,b=rr['bbox']; full=[l,t,r,b]
+        else:
+            cand=[r for r in measurements if r.get('n')==n and r.get('dpi')==dpi and abs(r.get('sat_min',0)-0.35)<1e-9 and r.get('status')=='DETECTED']
+            if not cand: continue
+            rr=cand[0]; px,py=rr['predicted_pixel']; l,t,r,b=rr['bbox']; full=rr['predicted_full_bbox']
+        margin=40
+        xa=max(0,int(min(l,full[0],px)-margin)); xb=min(rgb.shape[1],int(max(r,full[2],px)+margin)+1)
+        ya=max(0,int(min(t,full[1],py)-margin)); yb=min(rgb.shape[0],int(max(b,full[3],py)+margin)+1)
+        im=Image.fromarray(rgb[ya:yb,xa:xb]).resize(((xb-xa)*3,(yb-ya)*3),Image.Resampling.NEAREST)
+        dr=ImageDraw.Draw(im)
+        def tr(x,y): return ((x-xa)*3,(y-ya)*3)
+        # black cross = theoretical center
+        cx,cy=tr(px,py); q=10
+        dr.line((cx-q,cy,cx+q,cy),fill=(0,0,0),width=3); dr.line((cx,cy-q,cx,cy+q),fill=(0,0,0),width=3)
+        # black rectangle = translated full marker bbox; white rectangle = visible purple bbox
+        X0,Y0=tr(full[0],full[1]); X1,Y1=tr(full[2],full[3]); dr.rectangle((X0,Y0,X1,Y1),outline=(0,0,0),width=3)
+        V0,W0=tr(l,t); V1,W1=tr(r,b); dr.rectangle((V0,W0,V1,W1),outline=(255,255,255),width=3)
+        im.save(out/f'D30B_800dpi_n{n}_edge_registration.png')
+
+    print(json.dumps({
+      'verdict':verdict,
+      'control_max_400px':cmax,
+      'target_threshold_400px':threshold,
+      'summary_by_n':summaries
+    },indent=2))
+    print('D30B_EXECUTION_COMPLETE')
+
+if __name__=='__main__': main()
