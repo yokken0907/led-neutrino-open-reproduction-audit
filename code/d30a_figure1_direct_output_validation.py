@@ -454,3 +454,47 @@ def choose_x_tick_labels_from_pdf(page,clip,dpi,sp):
         if np.any(frac < -0.03) or np.any(frac > 1.03):
             continue
 
+        # Four consecutive decades must be linear in pixel coordinate.
+        A=np.vstack([xpix,np.ones_like(xpix)]).T
+        a,b=np.linalg.lstsq(A,np.log10(X_TICK_VALUES),rcond=None)[0]
+        resid=float(np.max(np.abs(a*xpix+b-np.log10(X_TICK_VALUES))))
+        row_spread=float(np.std(ys)/page.rect.height)
+        frac_rms=float(np.sqrt(np.mean((frac-X_EXPECTED_FRAC)**2)))
+        mean_dy=float(np.mean(ys)-bottom_pdf_y)
+        dy_target=0.018*page.rect.height
+        dy_pen=abs(mean_dy-dy_target)/page.rect.height
+
+        score=8.0*resid + 2.0*row_spread + 0.5*frac_rms + 0.25*dy_pen
+        rec={
+            "score":score,
+            "x_tick_pixels":xpix.tolist(),
+            "selected_words":list(combo),
+            "row_spread_page_fraction":row_spread,
+            "expected_fraction_rms":frac_rms,
+            "fit_log10_max_residual":resid,
+            "mean_label_offset_below_spine_pdf":mean_dy,
+        }
+        if best is None or score<best["score"]:
+            best=rec
+    if best is None:
+        raise RuntimeError("no coherent PDF-text x-tick label tuple")
+    return best
+
+
+def choose_x_major_tick_triplet(strength,pw):
+    """Identify the first three printed decade ticks: 0.1, 1, 10.
+
+    Three distinct decades are already sufficient to determine the affine mapping
+    pixel_x -> log10(x). The published raster exposes these three strokes robustly;
+    the fourth (100) was the sole failure mode of v5.1.1.
+
+    This is calibration-only. The scientific anchor set and acceptance gate are
+    unchanged.
+    """
+    vals=np.array([0.1,1.0,10.0],float)
+    exps=X_EXPECTED_FRAC[:3]
+    pools=[]
+    for f in exps:
+        pools.append(local_x_candidates(
+            strength, f*pw, radius=0.050*pw, max_candidates=12
+        ))
