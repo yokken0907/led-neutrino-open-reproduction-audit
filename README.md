@@ -1,75 +1,87 @@
 # LED-neutrino open reproduction audit
 
-Current manuscript-facing status: **Figure-1 partial replication with Revision-1 hosted reproducibility**
+Current manuscript-facing target: **partial replication of the Brane--Dirac spectrum in Figure 1**, with an end-to-end public validation route.
 
-This repository is the public reproducibility record for the higher-dimensional neutrino audit. Historical phases are retained for provenance, but the current ReScience C claim is intentionally narrow.
-
-It does **not** claim discovery of LED physics, does **not** claim that the target publication is wrong, and does **not** claim an exact replay of the target experimental likelihood.
-
-## Current successful partial-replication target
-
-The [Re] claim is bounded to the Brane-Dirac eigensystem shown in Figure 1 of:
+Target article:
 
 A. de Giorgi, D. Pasari, J. Turner, *Do neutrinos dream in 5D? Towards a comprehensive extra-dimensional neutrino phenomenology*, JHEP 05 (2026) 152.
 
-The public Revision-1 workflow:
-- solves the published infinite-tower eigensystem for m_D=1 and mu_1={10,1,0.1};
-- cross-checks nine pre-specified roots with a mathematically distinct finite-KK route;
-- verifies the paper's >99% unitarity truncation criterion;
-- preserves the historical D29A raw-residual automatic FAIL;
-- retains the D29B conditioning diagnostic without describing |F/F'| as a strict backward error;
-- directly re-solves all 3552 plotted roots at 80-digit precision (D29C);
-- rechecks the frozen D30 direct published-output evidence and the fixed per-mu_1 coverage rule.
+This repository does **not** claim a new LED signal, an error in the target article, or replication of the target authors' experimental likelihoods.
 
-Run locally:
+## One-command manuscript reproduction
 
 ```bash
 python -m pip install -r environment/requirements-figure1-exact.txt
-bash reproduce_figure1_revision1.sh
+bash reproduce_figure1_revision2.sh
 ```
 
-Expected terminal result:
+Expected terminal line:
 
 ```text
-FIGURE1_REVISION1_REPRODUCTION_PASS
+FIGURE1_REVISION2_END_TO_END_REPRODUCTION_PASS
 ```
 
-Workflow:
+The workflow performs four layers:
 
-```text
-.github/workflows/reproduce-figure1-revision1.yml
+1. solve the published infinite-tower eigensystem and cross-check nine pre-specified roots with a mathematically distinct finite-KK calculation;
+2. validate all 3552 plotted binary64 roots by direct 80-digit re-solution;
+3. obtain the exact version-of-record PDF identified by SHA-256
+   `2850f1c631b07de992cc72dd2b9c8aab80c10e7bccf51a421d90e80373f627c3`,
+   rasterize Figure 1 at 400/600/800 dpi, calibrate its axes, detect the colored marker footprints, and regenerate the 15-point graphical-validation table and overlay;
+4. apply the separately specified marker-overlap assessment to the two purple markers requiring occlusion treatment.
+
+If publisher transport bytes change, supply the exact identified PDF locally:
+
+```bash
+FIGURE1_TARGET_PDF=/path/to/JHEP05_2026_152.pdf bash reproduce_figure1_revision2.sh
 ```
 
-Reviewer-facing detail:
-- `REVISION1_REPRODUCTION_EVIDENCE.md`
-- `REPRODUCTION_EVIDENCE.md`
+The SHA-256 check is not relaxed.
 
-## D30 boundary
+## Graphical validation semantics
 
-The hosted D30C step rechecks frozen machine-readable D30A/D30B evidence tables. It does **not** rerasterize the publisher PDF. The underlying multi-resolution raster authority runs, overlays, and marker-occlusion adjudication are preserved in the manuscript audit archive. The manuscript reports 12 direct graphical matches, two separately adjudicated occlusion cases, and one unresolved graphical anchor; it does not claim 15/15 direct graphical recovery.
+The initial graphical comparison evaluates whether each theoretical point is supported by the detected **rasterized colored-marker footprint**. It is not a claim that the median digitized marker coordinate equals the theoretical coordinate to high precision.
 
-## Important supersession notice
+The 15 pre-specified test points yield:
+- 12 direct graphical-footprint supports;
+- two `mu1=10` markers (`n=5,10`) that require a control-calibrated overlap/occlusion assessment;
+- one `mu1=0.1,n=20` point with insufficient graphical support.
 
-Older D25-D27 outputs remain for audit provenance. Later reviewer-driven audits withdrew:
-- the old 39-versus-17 threshold-crossing attribution to KK truncation;
-- the old binary Daya Bay calibration-failure interpretation;
-- use of project-defined calibration cutoffs as current scientific pass/fail criteria.
+For the occlusion assessment:
+- `n=0` is the full purple-marker shape reference;
+- `n=1` is the registration control;
+- `n=2` is the registration plus overplot/occlusion control;
+- `n=5,10` are the assessed targets.
 
-The public Daya Bay covariance full fit is reproducible in the frozen environment, while the earlier fixed-coordinate project profile was non-equivalent. Figure-5 pointwise exclusion replication remains unresolved in the tested open comparator.
+The registration threshold is constructed as the maximum control edge-registration residual,
+`1.262472543657173` 400-dpi-equivalent pixels, plus exactly one 400-dpi-equivalent pixel:
+`2.262472543657173` pixels.
+
+See `docs/FIGURE1_GRAPHICAL_VALIDATION.md`. The one-command workflow writes
+`GRAPHICAL_VALIDATION_ANCHORS.csv` containing all 15 test points, theory coordinates, graphical estimates, and statuses.
+
+## Docker
+
+The Docker entry point is the same manuscript workflow:
+
+```bash
+docker build -t led-figure1-replication .
+docker run --rm led-figure1-replication
+```
 
 ## Scope boundary
+
+Successful replication claim: Figure 1 / Brane--Dirac spectrum only.
 
 Not claimed:
 - Figure-5 exclusion-contour replication;
 - exact target-author likelihood replay;
-- experimental-constraint replication;
-- a new LED signal;
+- Daya Bay or MINOS/MINOS+ experimental-constraint replication;
+- new extra-dimensional physics;
 - an error in the original JHEP article.
 
-## Historical workflow
-
-`reproduce_all.sh` and `.github/workflows/reproduce.yml` preserve the older D27 reproducibility record; they do not define the current manuscript claim.
+The older `reproduce_all.sh` and D25--D27 material are retained only as historical provenance and do not define the manuscript-facing reproduction route.
 
 ## Licensing
 
-Original code/documentation: MIT. Third-party data/code retain their upstream licenses; see `licenses/THIRD_PARTY_MATERIALS.md`.
+Original code/documentation: MIT. Third-party material retains its upstream license; see `licenses/THIRD_PARTY_MATERIALS.md`.
