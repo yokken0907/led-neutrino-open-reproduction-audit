@@ -1,57 +1,55 @@
-# Reproduction evidence index - Revision 1
+# Reproduction evidence index
 
-## Supported subset
+## Supported replicated subset
 
-Successful [Re] claim: **Figure 1 / Brane-Dirac spectrum only** from de Giorgi, Pasari & Turner, JHEP 05 (2026) 152.
+The successful [Re] claim is restricted to the **Figure 1 Brane--Dirac spectrum** of de Giorgi, Pasari & Turner, JHEP 05 (2026) 152.
 
-The calculation is based on published Eqs. (3.26)-(3.28) for m_D=1 and mu_1={10,1,0.1}, without target-author analysis code.
-
-## Public Revision-1 workflow
-
-Relevant files:
-- `code/d29a_figure1_replication.py`
-- `code/d29b_conditioning_validation.py`
-- `code/d29c_all_root_high_precision.py`
-- `code/d30c_revision1_evidence_check.py`
-- `expected/D30_DIRECT_OUTPUT_ANCHORS.csv`
-- `expected/D30_OCCLUSION_ADJUDICATION.csv`
-- `environment/requirements-figure1-exact.txt`
-- `reproduce_figure1_revision1.sh`
-- `.github/workflows/reproduce-figure1-revision1.yml`
-
-## Numerical evidence
-
-Nine finite-KK/infinite-tower pre-specified anchors agree to at worst 1.2910152946687958e-09 in mass.
-
-The >99% unitarity criterion is satisfied:
-- mu_1=10: 0.9996850466854103
-- mu_1=1: 0.9921727356755364
-- mu_1=0.1: 0.9938965788157853
-
-D29A's historical raw-residual automatic FAIL is preserved. D29B diagnoses the conditioning issue. D29C then directly re-solves all 3552 plotted roots at 80-digit precision; all pass the inherited Brent coordinate tolerance. The authority-run maximum binary64 error/tolerance ratio is 0.2503313317163729.
-
-## Published-output evidence
-
-Frozen D30 direct-output evidence:
-- mu_1=10: 3 direct robust matches + 2 separately adjudicated marker-occlusion cases = 5/5 supported;
-- mu_1=1: 5/5 direct robust matches;
-- mu_1=0.1: 4/5 direct robust matches; n=20 remains insufficient graphical support.
-
-The fixed adequacy rule is at least 4/5 supported anchors for each mu_1. The manuscript does not claim 15/15 direct graphical recovery.
-
-The hosted D30C check validates these frozen machine-readable tables and coverage logic; it does not rerasterize the publisher PDF.
-
-## One-command local reproduction
+The public reproduction route starts from the published eigensystem, uses no target-author analysis code, and is invoked with:
 
 ```bash
 python -m pip install -r environment/requirements-figure1-exact.txt
-bash reproduce_figure1_revision1.sh
+bash reproduce_figure1_revision2.sh
 ```
 
-Expected terminal line:
+## Numerical checks
 
-`FIGURE1_REVISION1_REPRODUCTION_PASS`
+- nine pre-specified finite-KK / infinite-tower comparison points;
+- target paper's >99% unitarity truncation criterion for all three Figure-1 parameter choices;
+- all 3552 plotted roots directly compared with 80-digit solutions using the solver settings `xtol=1e-14`, `rtol=1e-13`.
+
+The initial raw equation-residual acceptance criterion is retained in the provenance record; the final coordinate validation does not loosen it.
+
+## Published-output graphical validation
+
+Input identity:
+
+`expected/FIGURE1_TARGET_PDF_SHA256.txt`
+
+The workflow performs the following from scratch:
+1. retrieve or accept the exact identified version-of-record PDF;
+2. locate Figure 1 from its caption;
+3. rasterize at 400, 600 and 800 dpi;
+4. detect the plot frame and calibrate both logarithmic axes;
+5. identify colored marker footprints at 15 pre-specified theoretical points;
+6. generate the overlay and machine-readable point table;
+7. evaluate the two partially obscured purple markers using a control-calibrated overlap test.
+
+Result semantics:
+- 12 points have direct graphical-footprint support;
+- `mu1=10,n=5` and `mu1=10,n=10` are supported by the overlap/occlusion assessment;
+- `mu1=0.1,n=20` remains insufficiently supported graphically.
+
+The overlap controls are explicitly separated:
+- `n=0`: full-marker shape reference;
+- `n=1`: registration control;
+- `n=2`: registration plus overplot/occlusion control.
+
+The target registration threshold is the maximum control residual
+`1.262472543657173` plus exactly one 400-dpi-equivalent pixel, giving
+`2.262472543657173`.
+
+See `docs/FIGURE1_GRAPHICAL_VALIDATION.md`.
 
 ## Claim boundary
 
-This does not establish Figure-5 exclusion-contour replication, exact replay of the target likelihood, a new LED signal, or an error in the original article.
+This evidence does not establish Figure-5 exclusion-contour replication, exact target-likelihood replay, a new LED signal, or an error in the original article.
