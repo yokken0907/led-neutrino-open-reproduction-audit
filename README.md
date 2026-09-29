@@ -63,4 +63,6 @@ The current claim is summarized in `paper/CURRENT_CLAIM.md`. The current executa
 
 ## Licensing
 
+Citation metadata is maintained in `CITATION.cff`.
+
 Original code/documentation: MIT. Third-party material retains its upstream license; see `licenses/THIRD_PARTY_MATERIALS.md`.
