@@ -14,29 +14,39 @@ A. de Giorgi, D. Pasari, J. Turner, *Do neutrinos dream in 5D? Towards a compreh
 
 The independent Figure-1 calculation:
 - starts from published Eqs. (3.26)-(3.28);
-- uses (m_D=1) and (mu_1={10,1,0.1});
-- independently triangulates the infinite-tower roots against a finite-KK implementation;
+- uses `m_D=1` and `mu_1={10,1,0.1}`;
+- triangulates the infinite-tower roots against a mathematically distinct finite-KK route;
 - verifies the paper's >99% unitarity truncation criterion;
 - preserves the original D29A raw-residual FAIL in the audit trail;
-- diagnoses that FAIL with a D29B Newton-correction / derivative-scaled-residual audit;\n- directly re-solves all 3552 plotted roots at 80-digit precision in D29C;\n- compares pre-specified Figure-1 anchors with the published graphical output in D30A and adjudicates two deterministic overplot/occlusion cases in D30B without rewriting the frozen D30A machine verdict.
+- diagnoses that FAIL with a D29B Newton-correction / derivative-scaled-residual audit;
+- directly re-solves all 3552 plotted roots at 80-digit precision in D29C;
+- compares pre-specified Figure-1 anchors with the published graphical output in D30A and adjudicates two deterministic overplot/occlusion cases in D30B without rewriting the frozen D30A machine verdict.
 
-Run locally:
+Original D29A/D29B numerical-core workflow:
 
 ```bash
 python -m pip install -r environment/requirements-figure1-exact.txt
 bash reproduce_figure1.sh
 ```
 
-Expected bounded final verdict:
+Full Revision-1 reviewer-facing workflow:
 
-```text
-PASS_FIGURE1_COMPUTATIONAL_CORE_INDEPENDENT_REPLICATION_AFTER_CONDITIONING_AUDIT
+```bash
+python -m pip install -r environment/requirements-revision1-exact.txt
+bash reproduce_revision1.sh
 ```
 
-GitHub Actions workflow:
+Expected full Revision-1 terminal marker:
+
+```text
+REVISION1_REPRODUCTION_CI_PASS
+```
+
+GitHub Actions workflows:
 
 ```text
 .github/workflows/reproduce-figure1.yml
+.github/workflows/reproduce-revision1.yml
 ```
 
 Reviewer-facing evidence index:
