@@ -1,6 +1,6 @@
 # LED-neutrino open reproduction audit
 
-Current manuscript-facing status: **Figure-1 partial replication externally reproduced on GitHub-hosted Ubuntu**
+Current manuscript-facing status: **ReScience Revision-1 public reproducibility integration in progress; bounded Figure-1 partial replication only**
 
 This repository contains the public reproducibility record for the higher-dimensional neutrino audit. It preserves earlier audit phases for provenance, but the current manuscript interpretation is narrower than some historical phase verdicts.
 
@@ -18,7 +18,7 @@ The independent Figure-1 calculation:
 - independently triangulates the infinite-tower roots against a finite-KK implementation;
 - verifies the paper's >99% unitarity truncation criterion;
 - preserves the original D29A raw-residual FAIL in the audit trail;
-- resolves that FAIL with a conditioning-aware D29B backward-error audit.
+- diagnoses that FAIL with a D29B Newton-correction / derivative-scaled-residual audit;\n- directly re-solves all 3552 plotted roots at 80-digit precision in D29C;\n- compares pre-specified Figure-1 anchors with the published graphical output in D30A and adjudicates two deterministic overplot/occlusion cases in D30B without rewriting the frozen D30A machine verdict.
 
 Run locally:
 
