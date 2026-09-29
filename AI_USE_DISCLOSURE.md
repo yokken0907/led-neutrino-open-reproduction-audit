@@ -1,9 +1,7 @@
 # AI use disclosure
 
-Generative AI (OpenAI ChatGPT) assisted with software orchestration, audit planning,
-documentation drafting, code review, and packaging. Scientific claims were constrained by
-predeclared gates and independently recomputed artifacts. AI-generated interpretations were
-not treated as authority; public primary sources, executable outputs, and frozen hashes were
-used as the evidentiary basis.
+OpenAI ChatGPT assisted with software orchestration, validation organization, documentation drafting, code review, and packaging.
 
-The human author retains responsibility for the manuscript, submission, and scientific claims.
+Scientific claims were accepted only when supported by primary sources and reproducible executable outputs under pre-specified numerical criteria. AI-generated interpretations were not treated as evidentiary authority.
+
+The human author selected the research questions, executed the computational packages, reviewed the outputs, and retains responsibility for the manuscript, submission, and scientific claims.
