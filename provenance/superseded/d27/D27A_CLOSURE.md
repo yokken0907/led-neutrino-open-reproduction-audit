@@ -1,3 +1,6 @@
+> **SUPERSEDED — historical provenance only.**
+> This document predates the current ReScience C manuscript. It is retained only for analysis history and is not a current claim, status, or reviewer instruction.
+
 # D27A closure
 
 **Verdict: `PASS_FULL_CLEAN_RERUN`.**

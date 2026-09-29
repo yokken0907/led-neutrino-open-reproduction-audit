@@ -1,3 +1,6 @@
+> **SUPERSEDED — historical provenance only.**
+> This file predates the current ReScience C manuscript and is retained only to preserve analysis history. It must not be used as current scientific interpretation or current execution instructions. See `README.md`, `paper/CURRENT_CLAIM.md`, `REPRODUCTION_EVIDENCE.md`, and `REPRODUCIBILITY_STATEMENT.md`.
+
 # Revision-1 Figure-1 reproduction evidence
 
 The manuscript's successful claim remains limited to the Brane--Dirac spectrum in Figure 1 of de Giorgi, Pasari & Turner, JHEP 05 (2026) 152.

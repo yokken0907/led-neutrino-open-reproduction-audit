@@ -1,3 +1,4 @@
+# SUPERSEDED - historical workflow only; not active.
 name: Reproduce D27B
 on:
   workflow_dispatch:

@@ -1,3 +1,4 @@
+# SUPERSEDED - historical runner only; not the manuscript-facing entry point.
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
