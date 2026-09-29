@@ -1,0 +1,40 @@
+# SUPERSEDED - historical workflow only; not active.
+name: Reproduce Figure-1 Revision-1 evidence
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "code/d29a_figure1_replication.py"
+      - "code/d29b_conditioning_validation.py"
+      - "code/d29c_all_root_high_precision.py"
+      - "code/d30c_revision1_evidence_check.py"
+      - "expected/D30_DIRECT_OUTPUT_ANCHORS.csv"
+      - "expected/D30_OCCLUSION_ADJUDICATION.csv"
+      - "environment/requirements-figure1-exact.txt"
+      - "reproduce_figure1_revision1.sh"
+      - ".github/workflows/reproduce-figure1-revision1.yml"
+      - "README.md"
+      - "FIGURE1_REPLICATION_README.md"
+      - "REPRODUCTION_EVIDENCE.md"
+      - "REVISION1_REPRODUCTION_EVIDENCE.md"
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: environment/requirements-figure1-exact.txt
+      - name: Install version-pinned environment
+        run: python -m pip install -r environment/requirements-figure1-exact.txt
+      - name: Run Revision-1 Figure-1 workflow
+        run: bash reproduce_figure1_revision1.sh
+      - name: Archive Revision-1 results
+        uses: actions/upload-artifact@v4
+        with:
+          name: figure1-revision1-results
+          path: results/figure1-revision1
