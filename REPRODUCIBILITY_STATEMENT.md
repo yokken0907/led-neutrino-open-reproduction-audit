@@ -1,22 +1,28 @@
 # Reproducibility statement
 
-The repository is designed so that a third party can run:
+The manuscript-facing successful replication claim is restricted to the Brane--Dirac spectrum in Figure 1 of de Giorgi, Pasari & Turner, JHEP 05 (2026) 152.
+
+A third party can run the current workflow with:
 
 ```bash
-bash reproduce_all.sh
+python -m pip install -r environment/requirements-figure1-exact.txt
+bash reproduce_figure1_revision2.sh
 ```
 
-The runner:
-1. obtains public third-party inputs from pinned authoritative locations;
-2. verifies their SHA-256 hashes;
-3. creates two clean Python 3.12 environments;
-4. installs frozen dependencies;
-5. reruns the D26C1 public standard-3ν calibration and D25G-R2 KK-truncation topology test;
-6. compares the outputs to frozen expected results using predeclared tolerances and exact categorical checks;
-7. records manifests and SHA-256 inventories.
+or equivalently with the repository Dockerfile. The workflow:
 
-A GitHub Actions workflow is included to make the same test executable on an independent
-GitHub-hosted Ubuntu runner after publication of the repository.
+1. solves the published eigensystem and performs the finite-KK cross-check;
+2. directly re-solves all 3552 roots generated over the Figure-1 plotting range at 80-digit precision;
+3. verifies the version-of-record PDF by SHA-256;
+4. rasterizes Figure 1 at 400, 600 and 800 dpi, calibrates the axes, and regenerates the 15-point graphical-footprint table and overlay;
+5. applies the separately calibrated overlap/occlusion assessment to the two partially obscured purple markers.
 
-The expected scientific outcome includes a D26C1 scientific FAIL. That FAIL is itself a
-reproduced result and must not be treated as an execution failure.
+Expected terminal line:
+
+```text
+FIGURE1_REVISION2_END_TO_END_REPRODUCTION_PASS
+```
+
+The current manuscript does not claim replication of Figure 5 or of the target authors' experimental likelihoods. Earlier exploratory Figure-5 and Daya Bay analyses are retained only as provenance and scope history; they do not define the current [Re] result or its executable acceptance path.
+
+Older workflows and documents have been moved under `provenance/superseded/` when they contain withdrawn interpretations. They are retained for research history only.

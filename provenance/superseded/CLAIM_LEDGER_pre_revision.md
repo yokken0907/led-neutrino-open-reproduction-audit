@@ -1,3 +1,6 @@
+> **SUPERSEDED — retained for provenance only.**
+> This document predates the current ReScience C manuscript and contains withdrawn or obsolete interpretations. Do not use it to interpret the current manuscript. See the repository README and REPRODUCTION_EVIDENCE.md for the current claim and reproduction route.
+
 # Manuscript claim ledger
 
 | Claim | Status | Evidence |
