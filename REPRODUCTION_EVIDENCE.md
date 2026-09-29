@@ -15,38 +15,27 @@ bash reproduce_figure1_revision2.sh
 
 - nine pre-specified finite-KK / infinite-tower comparison points;
 - target paper's >99% unitarity truncation criterion for all three Figure-1 parameter choices;
-- all 3552 plotted roots directly compared with 80-digit solutions using the solver settings `xtol=1e-14`, `rtol=1e-13`.
+- all 3552 roots generated over the Figure-1 plotting range directly compared with 80-digit solutions using the solver settings `xtol=1e-14`, `rtol=1e-13`.
 
 The initial raw equation-residual acceptance criterion is retained in the provenance record; the final coordinate validation does not loosen it.
 
 ## Published-output graphical validation
 
-Input identity:
+Input identity: `expected/FIGURE1_TARGET_PDF_SHA256.txt`.
 
-`expected/FIGURE1_TARGET_PDF_SHA256.txt`
-
-The workflow performs the following from scratch:
-1. retrieve or accept the exact identified version-of-record PDF;
-2. locate Figure 1 from its caption;
-3. rasterize at 400, 600 and 800 dpi;
-4. detect the plot frame and calibrate both logarithmic axes;
-5. identify colored marker footprints at 15 pre-specified theoretical points;
-6. generate the overlay and machine-readable point table;
-7. evaluate the two partially obscured purple markers using a control-calibrated overlap test.
+The workflow retrieves or accepts the exact identified version-of-record PDF, locates Figure 1, rasterizes it at 400, 600 and 800 dpi, calibrates the logarithmic axes, identifies colored marker footprints at 15 pre-specified theoretical points, generates the overlay and machine-readable point table, and evaluates the two partially obscured purple markers using a control-calibrated overlap test.
 
 Result semantics:
 - 12 points have direct graphical-footprint support;
 - `mu1=10,n=5` and `mu1=10,n=10` are supported by the overlap/occlusion assessment;
 - `mu1=0.1,n=20` remains insufficiently supported graphically.
 
-The overlap controls are explicitly separated:
+The overlap controls are:
 - `n=0`: full-marker shape reference;
 - `n=1`: registration control;
 - `n=2`: registration plus overplot/occlusion control.
 
-The target registration threshold is the maximum control residual
-`1.262472543657173` plus exactly one 400-dpi-equivalent pixel, giving
-`2.262472543657173`.
+The target registration threshold is the maximum control residual `1.262472543657173` plus exactly one 400-dpi-equivalent pixel, giving `2.262472543657173`.
 
 See `docs/FIGURE1_GRAPHICAL_VALIDATION.md`.
 
